@@ -17,6 +17,31 @@
 웹용·PDF용 디자인을 두 번 만들지 않습니다. **분석 데이터는 한 번 생성**하고,
 같은 리포트 컴포넌트를 화면에는 웹으로, 파일로는 PDF로 출력합니다.
 
+## 실행
+
+```bash
+npm install
+npm run dev            # http://localhost:3000  → 랜딩 → /report/SAMPLE
+npm run typecheck      # 타입 검사
+npm test               # 사주 계산 스냅샷 테스트(vitest)
+
+# PDF 생성(워커, Chromium 필요)
+npm run build && npm start   # 서버 기동
+npm run pdf -- SAMPLE        # report/SAMPLE?print=1 → ./tmp/SAMPLE.pdf
+```
+
+## 구현 현황 (2026-06-05)
+
+| STEP | 내용 | 상태 |
+|------|------|------|
+| 0 | 데이터 모델 + 만세력 계산 모듈 + 샘플 픽스처 | ✅ (일주 정확·연월시 근사, 스냅샷 테스트) |
+| 1 | SSR 캐릭터 카드 | ✅ |
+| 2 | 스크롤 웹 리포트(섹션 렌더러 + 오행 SVG 차트) | ✅ |
+| 3 | PDF 파이프라인(인쇄 레이아웃 + Playwright 워커 + 상태 API) | ✅ 코드 (브라우저 바이너리 차단 환경에서 E2E 미실행) |
+| 4 | AI 휴먼 영상 | ⏳ 후순위 |
+
+> 만세력의 연주/월주/시주는 절기·진태양시를 단순화한 **근사** 구현입니다. 정밀화는 계산 모듈(`src/lib/saju`) 교체로 격리되어 있습니다.
+
 ## 문서
 
 | 문서 | 내용 |

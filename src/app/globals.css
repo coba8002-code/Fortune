@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0e1016;
+  --fg: #f5f6f8;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 인쇄(PDF) 전용 ────────────────────────────────────────────────
+   report/[id]?print=1 로 접속 시 Playbook 워커가 이 규칙으로 렌더한다.
+   웹과 동일한 컴포넌트를 쓰되, 종이에 맞게 배경/여백/페이지 분할만 조정. */
+@media print {
+  body {
+    background: #ffffff;
+    color: #14161c;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-page-break {
+    break-before: page;
+  }
+  section {
+    break-inside: avoid;
+  }
+}
