@@ -5,7 +5,7 @@
 import type { EarthlyBranch, Element, HeavenlyStem, Subject } from "@/types/report";
 import type { CompatBasisRow, CompatPerson, CompatScore } from "@/types/compat";
 import { calculateSaju } from "@/lib/saju/calculate";
-import { GENERATES, CONTROLS, ELEMENTS, STEM_ELEMENT } from "@/lib/saju/constants";
+import { GENERATES, CONTROLS, ELEMENTS, STEM_ELEMENT, STEMS, BRANCHES } from "@/lib/saju/constants";
 import { ELEMENT_HANJA } from "@/lib/ui/element";
 import { buildCharacterCard, computeElementProfile } from "@/lib/report/buildCard";
 
@@ -23,6 +23,28 @@ const CLASH: Record<EarthlyBranch, EarthlyBranch> = {
 const STEM_HARMONY: Record<HeavenlyStem, HeavenlyStem> = {
   갑: "기", 기: "갑", 을: "경", 경: "을", 병: "신", 신: "병", 정: "임", 임: "정", 무: "계", 계: "무",
 };
+
+// 지지 삼합/방합/형/해
+const SAMHAP: EarthlyBranch[][] = [["신", "자", "진"], ["인", "오", "술"], ["사", "유", "축"], ["해", "묘", "미"]];
+const BANGHAP: EarthlyBranch[][] = [["인", "묘", "진"], ["사", "오", "미"], ["신", "유", "술"], ["해", "자", "축"]];
+const SAMHYEONG: EarthlyBranch[][] = [["인", "사", "신"], ["축", "술", "미"]];
+const SELF_HYEONG = new Set<EarthlyBranch>(["진", "오", "유", "해"]);
+const HAE_PAIRS = new Set(["자미", "미자", "축오", "오축", "인사", "사인", "묘진", "진묘", "신해", "해신", "유술", "술유"]);
+
+const inSameGroup = (groups: EarthlyBranch[][], x: EarthlyBranch, y: EarthlyBranch) =>
+  x !== y && groups.some((g) => g.includes(x) && g.includes(y));
+function isHyeong(x: EarthlyBranch, y: EarthlyBranch): boolean {
+  if (x === y && SELF_HYEONG.has(x)) return true;
+  if ((x === "자" && y === "묘") || (x === "묘" && y === "자")) return true;
+  return SAMHYEONG.some((g) => g.includes(x) && g.includes(y) && x !== y);
+}
+/** 일주(천간·지지) 공망 두 지지 */
+function gongmang(stem: HeavenlyStem, branch: EarthlyBranch): EarthlyBranch[] {
+  const s = STEMS.indexOf(stem);
+  const b = BRANCHES.indexOf(branch);
+  const head = (((b - s) % 12) + 12) % 12; // 旬首 지지
+  return [BRANCHES[(head + 10) % 12], BRANCHES[(head + 11) % 12]];
+}
 
 const STEM_HANJA: Record<string, string> = {
   갑: "甲", 을: "乙", 병: "丙", 정: "丁", 무: "戊",
@@ -77,10 +99,18 @@ export interface CompatComputation {
   stemHaps: string[];
   /** 일간합(두 일간이 천간합) */
   dayStemHarmony: boolean;
+  samhap: number;
+  banghap: number;
+  hyeong: number;
+  hae: number;
+  spousePalace: "합" | "충" | "형해" | "-";
+  gongmangHit: boolean;
   complement: number;
   sharedYearPillar: boolean;
   score: CompatScore;
   basis: CompatBasisRow[];
+  /** 심화 근거(삼합·방합/형·해/배우자궁/공망) */
+  extras: CompatBasisRow[];
 }
 
 export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComputation {
@@ -109,6 +139,27 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
     for (const y of bStems) if (STEM_HARMONY[x] === y) stemHaps.push(`${STEM_HANJA[x]}${STEM_HANJA[y]}`);
   const dayStemHarmony = STEM_HARMONY[a.saju.dayMaster] === b.saju.dayMaster;
 
+  // 지지 삼합·방합·형·해 (교차)
+  let samhap = 0, banghap = 0, hyeong = 0, hae = 0;
+  for (const x of ab)
+    for (const y of bb) {
+      if (inSameGroup(SAMHAP, x, y)) samhap++;
+      if (inSameGroup(BANGHAP, x, y)) banghap++;
+      if (isHyeong(x, y)) hyeong++;
+      if (HAE_PAIRS.has(x + y)) hae++;
+    }
+  // 배우자궁(일지) 관계
+  const aDayB = a.saju.pillars.day.branch;
+  const bDayB = b.saju.pillars.day.branch;
+  let spousePalace: "합" | "충" | "형해" | "-" = "-";
+  if (SIX_HARMONY[aDayB] === bDayB || inSameGroup(SAMHAP, aDayB, bDayB) || inSameGroup(BANGHAP, aDayB, bDayB)) spousePalace = "합";
+  else if (CLASH[aDayB] === bDayB) spousePalace = "충";
+  else if (isHyeong(aDayB, bDayB) || HAE_PAIRS.has(aDayB + bDayB)) spousePalace = "형해";
+  // 공망 — 상대의 일지(배우자 자리)가 내 공망에 드는가
+  const aGM = gongmang(a.saju.dayMaster, aDayB);
+  const bGM = gongmang(b.saju.dayMaster, bDayB);
+  const gongmangHit = bGM.includes(aDayB) || aGM.includes(bDayB);
+
   let complement = 0;
   for (const e of ELEMENTS) {
     if (a.elements.scores[e] === 0 && b.elements.scores[e] > 0) complement++;
@@ -124,13 +175,23 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
   };
   // 천간합 가산: 일간합은 강한 끌림(+10), 그 외 천간합도 소폭 가산
   const harmonyBonus = (dayStemHarmony ? 10 : 0) + Math.min(stemHaps.length, 3) * 2;
-  const attraction = clamp((relPull[aToB] + relPull[bToA]) / 2 + complement * 2 + harmonyBonus);
+  const spouseHap = spousePalace === "합", spouseChung = spousePalace === "충", spouseHH = spousePalace === "형해";
+  const attraction = clamp(
+    (relPull[aToB] + relPull[bToA]) / 2 + complement * 2 + harmonyBonus +
+      Math.min(samhap + banghap, 4) * 1.5 + (spouseHap ? 8 : 0),
+  );
   const fireSum = a.elements.scores["화"] + b.elements.scores["화"];
   const comm = clamp(58 + fireSum * 6 - chungs.length * 4);
-  const stability = clamp(70 + haps.length * 8 - chungs.length * 12 + (sharedYearPillar ? 8 : 0) + (dayStemHarmony ? 3 : 0));
+  const stability = clamp(
+    70 + haps.length * 8 - chungs.length * 12 + (sharedYearPillar ? 8 : 0) + (dayStemHarmony ? 3 : 0) +
+      Math.min(samhap, 4) * 3 + Math.min(banghap, 4) * 2 + (spouseHap ? 6 : 0) - (spouseChung ? 8 : 0) - (gongmangHit ? 4 : 0),
+  );
   const growth = clamp(64 + complement * 7);
   const biSum = a.saju.tenGods.비겁 + b.saju.tenGods.비겁;
-  const friction = clamp(28 + biSum * 3 + chungs.length * 10 - haps.length * 3);
+  const friction = clamp(
+    28 + biSum * 3 + chungs.length * 10 - haps.length * 3 +
+      Math.min(hyeong, 3) * 7 + Math.min(hae, 3) * 4 + (spouseChung ? 10 : 0) + (spouseHH ? 6 : 0),
+  );
   const total = clamp(
     0.25 * attraction + 0.15 * comm + 0.3 * stability + 0.3 * growth - 0.08 * friction + 4,
   );
@@ -179,5 +240,29 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
     });
   }
 
-  return { a, b, aToB, bToA, haps, chungs, stemHaps, dayStemHarmony, complement, sharedYearPillar, score, basis };
+  // 심화 근거(삼합·방합 / 형·해 / 배우자궁 / 공망)
+  const extras: CompatBasisRow[] = [];
+  if (samhap || banghap)
+    extras.push({ label: "삼합·방합", text: `지지 삼합 ${samhap} · 방합 ${banghap} — 가치관·생활 리듬이 어우러지는 안정 요소.` });
+  if (hyeong || hae)
+    extras.push({ label: "형·해", text: `형(刑) ${hyeong} · 해(害) ${hae} — 미묘하게 어긋나거나 신경 쓰이는 지점.` });
+  if (spousePalace !== "-")
+    extras.push({
+      label: "배우자궁(일지)",
+      text:
+        spousePalace === "합"
+          ? "두 사람의 일지(배우자 자리)가 합 — 부부·연인 궁합의 핵심 길(吉)요소."
+          : spousePalace === "충"
+            ? "일지(배우자 자리)가 충 — 가장 가까운 자리에서 부딪힘, 거리·속도 조절이 필요."
+            : "일지(배우자 자리)에 형·해 — 잔잔한 신경전에 주의.",
+    });
+  if (gongmangHit)
+    extras.push({ label: "공망", text: "한쪽의 배우자 자리가 상대의 공망에 들어 인연이 ‘허(虛)’하게 느껴질 수 있음 — 표현으로 채워야." });
+  basis.push(...extras);
+
+  return {
+    a, b, aToB, bToA, haps, chungs, stemHaps, dayStemHarmony,
+    samhap, banghap, hyeong, hae, spousePalace, gongmangHit,
+    complement, sharedYearPillar, score, basis, extras,
+  };
 }
