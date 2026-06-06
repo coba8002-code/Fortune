@@ -118,12 +118,15 @@ const SYSTEM_PROMPT = `당신은 사주(명리)와 심리를 결합해 운명 �
 
 규칙:
 - 점술적 단정("반드시 ~한다")보다, 경향과 가능성으로 서술합니다.
-- 각 섹션은 사주 데이터에 근거해 구체적으로 씁니다(오행 편중, 강한 십성 등).
+- 각 섹션은 사주 데이터에 근거해 구체적으로, 충분한 분량으로 씁니다(오행 편중, 강한 십성, 조후 등).
+- 분량 기준: 각 섹션은 paragraph 3개 이상 + list 1개 이상 + callout 1~2개로 깊이 있게 풉니다.
+  (짧은 요약형 금지 — 근거 → 해석 → 실용 조언의 흐름으로 충실하게.)
 - 섹션 순서는 연애 → 돈 → 직업 → 인간관계 → 운세 → 총평 고정입니다.
 - 본문은 paragraph/list/callout/gauge 블록으로 구조화합니다. gauge value 는 0~100.
+- 이모지를 절대 쓰지 않습니다(고급스러운 톤 유지).
 - flavor 는 캐릭터 카드용 짧은 텍스트입니다: title(별명, 예 "전략가"), job(직업 비유),
   mainSkill/passiveSkill/weakness(스킬 이름, 4~8자).
-- 과장·이모지 남발 금지. 담백하고 품격 있게.`;
+- 담백하고 품격 있게. 과장 금지.`;
 
 function describeSaju(saju: SajuChart, elements: ElementProfile): string {
   const p = saju.pillars;
@@ -169,7 +172,7 @@ export async function generateReportContent({
 [사주 원국]
 ${describeSaju(saju, elements)}
 
-6개 섹션(love, money, career, relationship, fortune, summary)을 모두 작성하세요.`;
+6개 섹션(love, money, career, relationship, fortune, summary)을 모두, 각 섹션을 충분한 분량(문단 3개 이상)으로 작성하세요.`;
 
   const response = await anthropic.messages.create({
     model: "claude-opus-4-8",
