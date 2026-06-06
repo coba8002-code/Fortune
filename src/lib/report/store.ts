@@ -1,15 +1,12 @@
 /**
- * 리포트 저장소 (스텁).
+ * 리포트 조회 헬퍼 — 컴포지션 루트의 ReportStore 포트에 위임한다.
  *
- * 지금은 샘플 픽스처만 반환한다. 실제 구현에서는 PostgreSQL 등에서
- * 토큰(id)으로 ReportData 를 조회한다(ARCHITECTURE.md §4).
+ * (이전 스텁은 모든 id 에 샘플을 반환했지만, 이제 저장소 기반.
+ *  샘플은 container 에서 시드되어 /report/SAMPLE 데모가 계속 동작한다.)
  */
 import type { ReportData } from "@/types/report";
-import { sampleReport } from "@/fixtures/sampleReport";
+import { getServices } from "@/lib/services/container";
 
 export async function getReport(id: string): Promise<ReportData | null> {
-  // TODO: DB 조회로 교체. 현재는 모든 id 에 대해 샘플 반환.
-  if (id === "SAMPLE" || id === sampleReport.id) return sampleReport;
-  // 데모 단계: 알 수 없는 id 도 샘플로 응답(라우팅 확인용)
-  return { ...sampleReport, id };
+  return getServices().reportStore.get(id);
 }

@@ -40,11 +40,18 @@ UI보다 먼저, **단일 소스 `ReportData`를 만드는 파이프라인**을 
 
 ## STEP 3 — PDF 다운로드
 
-- [ ] 인쇄 레이아웃: `report/:id?print=1` + `print:` Tailwind 변형
-- [ ] Playwright 워커: 해당 URL 렌더 → `page.pdf()` → 스토리지 업로드
-- [ ] PDF 생성 큐(비동기) + 상태 폴링(`/api/reports/:id/pdf`)
-- [ ] 다운로드 링크: `download.myfortune.ai/:id.pdf`
-- [ ] 파일명: `{이름}_운명리포트.pdf`
+- [x] 인쇄 레이아웃: `report/:id?print=1` + `print:` Tailwind 변형 (`globals.css`, 페이지)
+- [x] Playwright 워커: 해당 URL 렌더 → `page.pdf()` (`scripts/generate-pdf.ts`) — 스토리지 업로드는 `PdfStorage` 포트로 연결
+- [x] PDF 생성 큐(비동기) + 상태 폴링(`/api/reports/:id/pdf`) — `JobQueue` 포트 + 인라인 어댑터
+- [x] 파일명: `{이름}_운명리포트.pdf`
+- [ ] 다운로드 링크 도메인(`download.myfortune.ai/:id.pdf`) — 운영 스토리지/도메인 연동 시
+
+### 인프라 (포트-어댑터)
+
+- [x] 결제·영속·PDF 스토리지·큐 **포트** 정의 (`src/lib/ports`)
+- [x] 인메모리/로컬/스텁 **어댑터** + 컴포지션 루트 (`src/lib/adapters`, `src/lib/services/container.ts`)
+- [x] 결제 → 분석 → 저장 → PDF 큐 플로우 (`POST /api/reports`)
+- [ ] 실제 벤더 어댑터(Postgres / Stripe·토스 / S3 등) — **스택 확정 후 어댑터만 교체**
 
 ## STEP 4 — AI 휴먼 설명 (후순위)
 
