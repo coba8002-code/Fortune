@@ -36,6 +36,8 @@ export interface Subject {
   birthPlace?: string;
   /** 진태양시 보정용 경도(°E, 선택). 지정 시 birthPlace 보다 우선. */
   birthLongitude?: number;
+  /** 카드 인물 아트(데이터 URI 또는 URL, 선택) */
+  photo?: string;
 }
 
 // ── 사주 원국 ──────────────────────────────────────────────────────────
