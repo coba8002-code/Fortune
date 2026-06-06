@@ -20,7 +20,7 @@
 UI보다 먼저, **단일 소스 `ReportData`를 만드는 파이프라인**을 세움.
 
 - [x] `ReportData`/`SajuChart` 타입 정의(REPORT_MODEL.md 기준) — `src/types/report.ts`
-- [x] 만세력 계산 모듈(격리된 패키지) — **lunar-javascript** 기반 八字, 절기 경계·음양력(윤달) 변환 정확 (`src/lib/saju`). 진태양시 보정은 추후.
+- [x] 만세력 계산 모듈(격리된 패키지) — **lunar-javascript** 기반 八字, 절기 경계·음양력(윤달) 변환 정확 (`src/lib/saju`). **진태양시 보정**(경도+균시차) 포함 (`trueSolarTime.ts`).
 - [x] 계산 스냅샷 테스트(알려진 생년월일 → 원국 고정값 검증) — `calculate.test.ts`
 - [x] LLM 해석 단계: 사주 원국 → 카드 연출 텍스트 + `sections`(ContentBlock JSON) — `src/lib/llm/generateReport.ts` (`claude-opus-4-8`, 구조화 출력). 수치는 계산이, 글은 LLM 이 담당. 병합은 `src/lib/report/build.ts`.
 - [x] 더미 `ReportData` 픽스처 1개(이후 UI가 이것으로 개발) — `src/fixtures/sampleReport.ts`
@@ -50,7 +50,8 @@ UI보다 먼저, **단일 소스 `ReportData`를 만드는 파이프라인**을 
 ### 인프라 (포트-어댑터)
 
 - [x] 결제·영속·PDF 스토리지·큐 **포트** 정의 (`src/lib/ports`)
-- [x] 인메모리/로컬/스텁 **어댑터** + 컴포지션 루트 (`src/lib/adapters`, `src/lib/services/container.ts`)
+- [x] 인메모리/**파일**/로컬/스텁 **어댑터** + 컴포지션 루트 (`src/lib/adapters`, `src/lib/services/container.ts`) — `FORTUNE_STORE=file` 로 영속 전환
+- [x] CI(GitHub Actions): typecheck + test + build (`.github/workflows/ci.yml`)
 - [x] 결제 → 분석 → 저장 → PDF 큐 플로우 (`POST /api/reports`)
 - [ ] 실제 벤더 어댑터(Postgres / Stripe·토스 / S3 등) — **스택 확정 후 어댑터만 교체**
 

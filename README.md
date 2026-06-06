@@ -25,6 +25,9 @@ npm run dev            # http://localhost:3000  → 랜딩 → /report/SAMPLE
 npm run typecheck      # 타입 검사
 npm test               # 사주 계산 스냅샷 테스트(vitest)
 
+# 리포트 영속(선택): 파일 저장소로 재시작에도 데이터 유지
+FORTUNE_STORE=file npm run dev   # 기본은 인메모리
+
 # PDF 생성(워커, Chromium 필요)
 npm run build && npm start   # 서버 기동
 npm run pdf -- SAMPLE        # report/SAMPLE?print=1 → ./tmp/SAMPLE.pdf
@@ -42,7 +45,7 @@ npm run pdf -- SAMPLE        # report/SAMPLE?print=1 → ./tmp/SAMPLE.pdf
 | 3+ | 인프라 포트-어댑터(결제·영속·PDF 스토리지·큐) + 결제→분석→저장→큐 플로우 | ✅ (인메모리/로컬 어댑터, 스택 미정 → 어댑터 교체로 벤더 연결) |
 | 4 | AI 휴먼 영상 | ❌ 범위 제외 (영상 단가·대기) |
 
-> 만세력은 검증된 **lunar-javascript**(6tail)로 八字를 계산합니다 — 절기 경계로 연주/월주를 정확히 가르고, 음력(윤달 포함) 입력을 양력으로 변환합니다. 진태양시(출생지 경도) 보정은 추후 `src/lib/saju` 내에서 추가 가능(인터페이스 불변).
+> 만세력은 검증된 **lunar-javascript**(6tail)로 八字를 계산합니다 — 절기 경계로 연주/월주를 정확히 가르고, 음력(윤달 포함) 입력을 양력으로 변환합니다. **진태양시 보정**(경도 + 균시차)도 포함되어, `birthPlace`(한국 주요 도시) 또는 `birthLongitude` 입력 시 시주(時辰) 경계를 보정합니다.
 
 ## 문서
 

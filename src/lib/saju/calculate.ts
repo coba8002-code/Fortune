@@ -20,6 +20,7 @@ import type {
   TenGodCount,
 } from "@/types/report";
 import { BRANCH_ELEMENT, BRANCHES, STEM_ELEMENT, STEMS, tenGodCategory } from "./constants";
+import { resolveLongitude, solarTimeCorrectionMinutes } from "./trueSolarTime";
 
 // 천간/지지 한자 → 한글 매핑(인덱스 동일 순서).
 const GAN_CN = "甲乙丙丁戊己庚辛壬癸";
@@ -37,22 +38,44 @@ function toPillar(gan: string, zhi: string): Pillar {
 function getLunar(subject: Subject): { lunar: Lunar; hasTime: boolean } {
   const [year, month, day] = subject.birth.date.split("-").map((n) => parseInt(n, 10));
   const hasTime = Boolean(subject.birth.time);
-  const [hh, mm] = hasTime
+  let [hh, mm] = hasTime
     ? subject.birth.time!.split(":").map((n) => parseInt(n, 10))
     : [0, 0];
+  let [y, m, d] = [year, month, day];
+
+  // 진태양시 보정: 양력 + 시각이 있을 때만, 시계시각에 보정(분)을 더해 재계산.
+  // (음력 입력은 날짜 의미 보존을 위해 보정하지 않는다.)
+  // 보정량이 자정을 넘으면 날짜까지 이동하므로 UTC 타임스탬프로 안전하게 처리.
+  if (hasTime && subject.birth.calendar === "solar") {
+    const longitude = resolveLongitude({
+      birthLongitude: subject.birthLongitude,
+      birthPlace: subject.birthPlace,
+    });
+    const corr = solarTimeCorrectionMinutes({ year, month, day }, longitude);
+    if (corr !== 0) {
+      const dt = new Date(Date.UTC(year, month - 1, day, hh, mm));
+      dt.setUTCMinutes(dt.getUTCMinutes() + Math.round(corr));
+      y = dt.getUTCFullYear();
+      m = dt.getUTCMonth() + 1;
+      d = dt.getUTCDate();
+      hh = dt.getUTCHours();
+      mm = dt.getUTCMinutes();
+    }
+  }
 
   if (subject.birth.calendar === "lunar") {
     // 윤달이면 month 를 음수로 전달(lunar-javascript 규약).
-    const m = subject.birth.isLeapMonth ? -month : month;
+    // 음력 입력은 진태양시 보정을 적용하지 않는다(음력 날짜 의미 보존) — 양력만 보정.
+    const mm2 = subject.birth.isLeapMonth ? -month : month;
     const lunar = hasTime
-      ? Lunar.fromYmdHms(year, m, day, hh, mm, 0)
-      : Lunar.fromYmd(year, m, day);
+      ? Lunar.fromYmdHms(year, mm2, day, hh, mm, 0)
+      : Lunar.fromYmd(year, mm2, day);
     return { lunar, hasTime };
   }
 
   const solar = hasTime
-    ? Solar.fromYmdHms(year, month, day, hh, mm, 0)
-    : Solar.fromYmd(year, month, day);
+    ? Solar.fromYmdHms(y, m, d, hh, mm, 0)
+    : Solar.fromYmd(y, m, d);
   return { lunar: solar.getLunar(), hasTime };
 }
 

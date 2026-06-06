@@ -33,3 +33,6 @@ next-env.d.ts
 # generated PDFs (local)
 /tmp
 *.local.pdf
+
+# file-based report store (local persistence)
+/data

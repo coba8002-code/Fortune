@@ -31,7 +31,8 @@ interface Subject {
     isLeapMonth?: boolean;    // 음력 윤달
   };
   gender: 'male' | 'female';
-  birthPlace?: string;        // 진태양시 보정용(선택)
+  birthPlace?: string;        // 진태양시 보정용 출생지(선택, 한국 도시명이면 경도 자동)
+  birthLongitude?: number;    // 진태양시 보정용 경도 °E(선택, birthPlace 보다 우선)
 }
 ```
 

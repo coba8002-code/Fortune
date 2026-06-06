@@ -9,6 +9,7 @@
  */
 import type { JobQueue, PaymentGateway, PdfStorage, ReportStore } from "@/lib/ports";
 import { createMemoryReportStore } from "@/lib/adapters/memoryReportStore";
+import { createFileReportStore } from "@/lib/adapters/fileReportStore";
 import { createLocalPdfStorage } from "@/lib/adapters/localPdfStorage";
 import { createStubPayment } from "@/lib/adapters/stubPayment";
 import { createInlineJobQueue } from "@/lib/adapters/inlineJobQueue";
@@ -25,7 +26,12 @@ export interface Services {
 const globalForServices = globalThis as unknown as { __fortuneServices?: Services };
 
 function build(): Services {
-  const reportStore = createMemoryReportStore([sampleReport]); // 데모: 샘플 시드
+  // FORTUNE_STORE=file → 파일 영속(재시작에도 유지), 기본은 인메모리.
+  // 운영에선 createPostgresReportStore 등으로 교체(이 한 줄만 바뀐다).
+  const reportStore =
+    process.env.FORTUNE_STORE === "file"
+      ? createFileReportStore(undefined, [sampleReport])
+      : createMemoryReportStore([sampleReport]); // 데모: 샘플 시드
   const pdfStorage = createLocalPdfStorage();
   const payment = createStubPayment();
   const jobQueue = createInlineJobQueue({ store: reportStore, storage: pdfStorage });

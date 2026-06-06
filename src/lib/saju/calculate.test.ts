@@ -90,6 +90,25 @@ describe("calculateSaju — 구조/스냅샷", () => {
     `);
   });
 
+  it("진태양시 보정이 경계 근처 시주(時柱)를 바꾼다 (서울, 15:10)", () => {
+    const base: Subject = {
+      name: "x",
+      birth: { date: "1990-06-21", time: "15:10", calendar: "solar" },
+      gender: "male",
+    };
+    // 보정 없음(경도 미지정): 15:10 → 신시(申)
+    const noCorr = calculateSaju(base);
+    expect(noCorr.pillars.hour?.branch).toBe("신");
+
+    // 서울(동경 약 127°) 보정 적용 시 약 -33분 → 14:3x → 미시(未)
+    const seoul = calculateSaju({ ...base, birthPlace: "서울특별시" });
+    expect(seoul.pillars.hour?.branch).toBe("미");
+
+    // 명시적 경도가 birthPlace 보다 우선
+    const byLon = calculateSaju({ ...base, birthLongitude: 126.98 });
+    expect(byLon.pillars.hour?.branch).toBe("미");
+  });
+
   it("음력 입력을 양력으로 변환해 동일 원국을 낸다 (음 1991-9-1 = 양 1991-10-08)", () => {
     const fromLunar = calculateSaju({
       name: "x",

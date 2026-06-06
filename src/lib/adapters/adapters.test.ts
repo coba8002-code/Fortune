@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it } from "vitest";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { createMemoryReportStore } from "./memoryReportStore";
+import { createFileReportStore } from "./fileReportStore";
 import { createStubPayment } from "./stubPayment";
 import { createInlineJobQueue } from "./inlineJobQueue";
 import type { PdfStorage } from "@/lib/ports";
@@ -15,6 +19,23 @@ describe("memoryReportStore", () => {
     await store.save(r);
     await store.setPdf("X1", { status: "ready", url: "file://x.pdf", bytes: 10 });
     expect((await store.get("X1"))?.pdf?.status).toBe("ready");
+  });
+});
+
+describe("fileReportStore", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "fortune-store-"));
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
+
+  it("시드 보존 + 저장/조회 + PDF 상태가 재생성 인스턴스에서도 유지(영속)", async () => {
+    const store = createFileReportStore(dir, [sampleReport]);
+    await store.save({ ...sampleReport, id: "F1" });
+    await store.setPdf("F1", { status: "ready", url: "file://f.pdf", bytes: 5 });
+
+    // 새 인스턴스(=재시작 시뮬레이션)에서도 같은 디렉터리를 읽어 상태 유지
+    const reopened = createFileReportStore(dir);
+    expect((await reopened.get("F1"))?.pdf?.status).toBe("ready");
+    expect((await reopened.get(sampleReport.id))?.id).toBe(sampleReport.id);
+    expect(await reopened.get("missing")).toBeNull();
   });
 });
 

@@ -32,8 +32,10 @@ export interface Subject {
     isLeapMonth?: boolean;
   };
   gender: "male" | "female";
-  /** 진태양시 보정용(선택) */
+  /** 진태양시 보정용 출생지(선택). 한국 주요 도시명이면 경도 자동 해석. */
   birthPlace?: string;
+  /** 진태양시 보정용 경도(°E, 선택). 지정 시 birthPlace 보다 우선. */
+  birthLongitude?: number;
 }
 
 // ── 사주 원국 ──────────────────────────────────────────────────────────
