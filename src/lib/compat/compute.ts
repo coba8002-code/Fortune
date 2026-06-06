@@ -2,7 +2,7 @@
  * 궁합 계산 (결정론) — 두 사주에서 일간 관계·지지 합충·오행 보완·점수를 산출한다.
  * 글(섹션/설명서)은 LLM 이, 숫자/근거는 이 모듈이 담당한다.
  */
-import type { EarthlyBranch, Element, Subject } from "@/types/report";
+import type { EarthlyBranch, Element, HeavenlyStem, Subject } from "@/types/report";
 import type { CompatBasisRow, CompatPerson, CompatScore } from "@/types/compat";
 import { calculateSaju } from "@/lib/saju/calculate";
 import { GENERATES, CONTROLS, ELEMENTS, STEM_ELEMENT } from "@/lib/saju/constants";
@@ -17,6 +17,11 @@ const SIX_HARMONY: Record<EarthlyBranch, EarthlyBranch> = {
 const CLASH: Record<EarthlyBranch, EarthlyBranch> = {
   자: "오", 오: "자", 축: "미", 미: "축", 인: "신", 신: "인",
   묘: "유", 유: "묘", 진: "술", 술: "진", 사: "해", 해: "사",
+};
+
+// 천간 오합(五合): 갑기·을경·병신·정임·무계
+const STEM_HARMONY: Record<HeavenlyStem, HeavenlyStem> = {
+  갑: "기", 기: "갑", 을: "경", 경: "을", 병: "신", 신: "병", 정: "임", 임: "정", 무: "계", 계: "무",
 };
 
 const STEM_HANJA: Record<string, string> = {
@@ -46,6 +51,10 @@ function branchesOf(p: CompatPerson): EarthlyBranch[] {
   const pl = p.saju.pillars;
   return [pl.year.branch, pl.month.branch, pl.day.branch, ...(pl.hour ? [pl.hour.branch] : [])];
 }
+function stemsOf(p: CompatPerson): HeavenlyStem[] {
+  const pl = p.saju.pillars;
+  return [pl.year.stem, pl.month.stem, pl.day.stem, ...(pl.hour ? [pl.hour.stem] : [])];
+}
 
 const dayEl = (p: CompatPerson): Element => STEM_ELEMENT[p.saju.dayMaster];
 const stemHanja = (p: CompatPerson): string =>
@@ -64,6 +73,10 @@ export interface CompatComputation {
   bToA: RelationCategory;
   haps: string[];
   chungs: string[];
+  /** 천간합 쌍(한자) */
+  stemHaps: string[];
+  /** 일간합(두 일간이 천간합) */
+  dayStemHarmony: boolean;
   complement: number;
   sharedYearPillar: boolean;
   score: CompatScore;
@@ -88,6 +101,14 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
       if (CLASH[x] === y) chungs.push(x + y);
     }
 
+  // 천간합 (오합) — 두 사주 천간 간 교차
+  const aStems = stemsOf(a);
+  const bStems = stemsOf(b);
+  const stemHaps: string[] = [];
+  for (const x of aStems)
+    for (const y of bStems) if (STEM_HARMONY[x] === y) stemHaps.push(`${STEM_HANJA[x]}${STEM_HANJA[y]}`);
+  const dayStemHarmony = STEM_HARMONY[a.saju.dayMaster] === b.saju.dayMaster;
+
   let complement = 0;
   for (const e of ELEMENTS) {
     if (a.elements.scores[e] === 0 && b.elements.scores[e] > 0) complement++;
@@ -101,10 +122,12 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
   const relPull: Record<RelationCategory, number> = {
     재성: 86, 관성: 84, 식상: 80, 인성: 78, 비겁: 70,
   };
-  const attraction = clamp((relPull[aToB] + relPull[bToA]) / 2 + complement * 2);
+  // 천간합 가산: 일간합은 강한 끌림(+10), 그 외 천간합도 소폭 가산
+  const harmonyBonus = (dayStemHarmony ? 10 : 0) + Math.min(stemHaps.length, 3) * 2;
+  const attraction = clamp((relPull[aToB] + relPull[bToA]) / 2 + complement * 2 + harmonyBonus);
   const fireSum = a.elements.scores["화"] + b.elements.scores["화"];
   const comm = clamp(58 + fireSum * 6 - chungs.length * 4);
-  const stability = clamp(70 + haps.length * 8 - chungs.length * 12 + (sharedYearPillar ? 8 : 0));
+  const stability = clamp(70 + haps.length * 8 - chungs.length * 12 + (sharedYearPillar ? 8 : 0) + (dayStemHarmony ? 3 : 0));
   const growth = clamp(64 + complement * 7);
   const biSum = a.saju.tenGods.비겁 + b.saju.tenGods.비겁;
   const friction = clamp(28 + biSum * 3 + chungs.length * 10 - haps.length * 3);
@@ -135,6 +158,19 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
       text: complement > 0 ? "서로의 부족한 기운을 채워주는 상생 구조." : "비슷한 기운이라 편안하지만 새 자극은 적은 편.",
     },
   ];
+  // 천간합 근거 (일간합 우선)
+  if (dayStemHarmony) {
+    basis.splice(1, 0, {
+      label: "천간합",
+      text: `${stemHanja(a).slice(0, 1)}${stemHanja(b).slice(0, 1)}合 (일간합) — 두 일간이 천간으로 맞붙어 강하게 끌리는 인연. 끌림의 핵심 동력.`,
+    });
+  } else if (stemHaps.length) {
+    basis.splice(1, 0, {
+      label: "천간합",
+      text: `${[...new Set(stemHaps)].join(", ")} — 천간이 어우러져 정서적으로 부드럽게 묶이는 면이 있음.`,
+    });
+  }
+
   const bothLack = ELEMENTS.filter((e) => a.elements.scores[e] === 0 && b.elements.scores[e] === 0);
   if (bothLack.length) {
     basis.push({
@@ -143,5 +179,5 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
     });
   }
 
-  return { a, b, aToB, bToA, haps, chungs, complement, sharedYearPillar, score, basis };
+  return { a, b, aToB, bToA, haps, chungs, stemHaps, dayStemHarmony, complement, sharedYearPillar, score, basis };
 }

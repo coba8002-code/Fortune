@@ -83,6 +83,7 @@ export async function generateCompatContent(
 
 [근거]
 - 일간 관계: A→B ${comp.aToB}, B→A ${comp.bToA}
+- 천간합: ${comp.dayStemHarmony ? "일간합(천간 오합) — 강한 끌림" : comp.stemHaps.length ? comp.stemHaps.join(",") : "없음"}
 - 지지 합 ${comp.haps.join(",") || "없음"} / 충 ${comp.chungs.join(",") || "없음"}
 - 오행 보완도 ${comp.complement} (서로 부족을 채우는 정도)
 - 동년주(동갑) ${comp.sharedYearPillar ? "예" : "아니오"}

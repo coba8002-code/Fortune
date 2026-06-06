@@ -4,6 +4,7 @@ import type { Subject } from "@/types/report";
 
 const A: Subject = { name: "최준혁", birth: { date: "1980-12-02", time: "08:30", calendar: "solar" }, gender: "male" };
 const B: Subject = { name: "김은경", birth: { date: "1980-09-04", time: "16:00", calendar: "solar" }, gender: "female" };
+const C: Subject = { name: "정소영", birth: { date: "1980-03-22", time: "20:00", calendar: "solar" }, gender: "female" };
 
 describe("dayRelation", () => {
   it("土→金 은 식상, 金→土 는 인성", () => {
@@ -30,5 +31,22 @@ describe("computeCompatibility (최준혁 × 김은경)", () => {
     expect(c.score.total).toBeGreaterThanOrEqual(0);
     expect(c.score.total).toBeLessThanOrEqual(100);
     expect(["SSR", "SR", "R", "N"]).toContain(c.score.grade);
+  });
+  it("김은경과는 일간합 아님(천간합 己甲은 존재)", () => {
+    expect(c.dayStemHarmony).toBe(false);
+    expect(c.stemHaps.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("천간합 — 최준혁(己) × 정소영(甲)", () => {
+  const c = computeCompatibility(A, C);
+  it("갑기합 = 일간합으로 판정", () => {
+    expect(c.dayStemHarmony).toBe(true);
+  });
+  it("일간합 가산으로 끌림 점수가 높다", () => {
+    expect(c.score.breakdown.attraction).toBeGreaterThanOrEqual(85);
+  });
+  it("충 2개(묘유·진술) 감지", () => {
+    expect(c.chungs.length).toBe(2);
   });
 });
