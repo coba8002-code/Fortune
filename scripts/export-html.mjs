@@ -6,15 +6,19 @@
  *
  * 사용:
  *   npm run build && npm start        # 서버 기동
- *   node scripts/export-html.mjs SAMPLE [out.html]
+ *   node scripts/export-html.mjs SAMPLE [out.html]          # → /report/SAMPLE
+ *   node scripts/export-html.mjs /manual/DEMO1980 [out.html] # 경로 직접 지정
  */
 import { writeFileSync } from "node:fs";
 
 const base = process.env.BASE_URL ?? "http://localhost:3000";
-const id = process.argv[2] ?? "SAMPLE";
-const out = process.argv[3] ?? `fortune-${id}.html`;
+const arg = process.argv[2] ?? "SAMPLE";
+// "/" 로 시작하면 경로 그대로, 아니면 /report/:id 로 해석
+const path = arg.startsWith("/") ? arg : `/report/${arg}`;
+const slug = arg.replace(/^\//, "").replace(/\//g, "-");
+const out = process.argv[3] ?? `fortune-${slug}.html`;
 
-const res = await fetch(`${base}/report/${id}`);
+const res = await fetch(`${base}${path}`);
 if (!res.ok) {
   console.error(`[export] ${res.status} ${res.statusText}`);
   process.exit(1);
