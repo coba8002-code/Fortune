@@ -129,6 +129,14 @@ export interface ReportSection {
   body: ContentBlock[];
 }
 
+/** 개인 사주 10대 심층 분석 카테고리 */
+export interface PersonalCategory {
+  key: string;
+  title: string;
+  score?: number;
+  points: string[];
+}
+
 // ── STEP3 / STEP4: 산출물 메타 ────────────────────────────────────────
 export interface PdfArtifact {
   status: "pending" | "ready" | "failed";

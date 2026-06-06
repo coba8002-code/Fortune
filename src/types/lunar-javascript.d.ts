@@ -27,6 +27,8 @@ declare module "lunar-javascript" {
   export interface Lunar {
     getEightChar(): EightChar;
     getSolar(): Solar;
+    getMonthInGanZhi(): string;
+    getDayInGanZhi(): string;
   }
   export interface Solar {
     getLunar(): Lunar;

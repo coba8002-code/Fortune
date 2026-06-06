@@ -6,6 +6,7 @@ import { ElementChart } from "@/components/ElementChart";
 import { SajuTable } from "@/components/SajuTable";
 import { SectionRenderer } from "@/components/SectionRenderer";
 import { ManualSection } from "@/components/ManualSection";
+import { buildPersonalAnalysis } from "@/lib/report/analysis";
 import { ELEMENT_LABEL } from "@/lib/ui/element";
 
 export default async function ReportPage({
@@ -19,6 +20,7 @@ export default async function ReportPage({
   if (!report) notFound();
 
   const manual = await getManual(params.id);
+  const analysis = buildPersonalAnalysis(report.subject);
   const isPrint = searchParams.print === "1";
 
   return (
@@ -58,6 +60,39 @@ export default async function ReportPage({
             <span className="mx-3 text-gold/40">·</span>
             보완할 기운 <span className="font-display text-ivory/90">{ELEMENT_LABEL[report.elements.lacking]}</span>
           </p>
+        </div>
+      </section>
+
+      {/* 10가지 심층 분석 */}
+      <section className="print-page-break mx-auto mt-4 max-w-2xl px-8 py-12">
+        <div className="text-center">
+          <span className="label-caps">In-Depth · 10 Lenses</span>
+          <h2 className="mt-3 font-display text-2xl font-bold text-ivory">10가지 심층 분석</h2>
+          <div className="hairline mx-auto mt-5 max-w-xs" />
+        </div>
+        <div className="mt-8 space-y-7">
+          {analysis.map((cat, i) => (
+            <div key={cat.key}>
+              <div className="flex items-baseline gap-3">
+                <span className="font-display text-sm text-gold/70">{String(i + 1).padStart(2, "0")}</span>
+                <h3 className="flex-1 font-display text-lg font-bold text-ivory">{cat.title}</h3>
+                {typeof cat.score === "number" && <span className="font-display text-xs text-ivory/45">{cat.score}</span>}
+              </div>
+              {typeof cat.score === "number" && (
+                <div className="mt-2 h-px w-full bg-white/10">
+                  <div className="h-px bg-gold" style={{ width: `${cat.score}%` }} />
+                </div>
+              )}
+              <ul className="mt-3 space-y-1.5">
+                {cat.points.map((p, j) => (
+                  <li key={j} className="flex gap-3 text-sm leading-relaxed text-ivory/75">
+                    <span className="mt-2 h-px w-3 shrink-0 bg-gold/50" />
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </section>
 
