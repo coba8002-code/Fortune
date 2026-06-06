@@ -6,21 +6,52 @@ import { Solar, Lunar } from "lunar-javascript";
 import type { Element, Subject } from "@/types/report";
 import type { Daewoon } from "@/types/fortune";
 import { STEM_ELEMENT, BRANCH_ELEMENT, STEMS, BRANCHES, tenGodCategory } from "@/lib/saju/constants";
+import { calculateSaju } from "@/lib/saju/calculate";
+import type { SajuChart } from "@/types/report";
 
 const GAN_CN = "甲乙丙丁戊己庚辛壬癸";
 const ZHI_CN = "子丑寅卯辰巳午未申酉戌亥";
 
+export interface BodyStrength {
+  strong: boolean;
+  label: string; // 신강 / 중화신강 / 중화신약 / 신약
+  support: number;
+  drain: number;
+}
+
 /**
- * 억부 용신 휴리스틱: 최준혁(己土, 토금 과다 신강)처럼
- * 일간을 ‘빼주고 다스리는’ 식상(금)·재성(수)·관성(목)은 길(+),
- * 보태는 인성(화)·비겁(토)은 흉(−)으로 본다.
- * 일반화: 일간 오행 D 기준으로 각 오행의 십성 역할로 가중.
+ * 신강/신약 추정 — 일간을 돕는 세력(비겁+인성) vs 빼는 세력(식상+재성+관성),
+ * 월령(月令) 가중 포함. 정밀 격국 분석은 아니나 용신 방향을 잡는 휴리스틱.
  */
-function favorByElement(dayElement: Element): Record<Element, number> {
+export function estimateStrength(saju: SajuChart): BodyStrength {
+  const dayEl = STEM_ELEMENT[saju.dayMaster];
+  const tg = saju.tenGods;
+  let support = tg.비겁 + tg.인성;
+  let drain = tg.식상 + tg.재성 + tg.관성;
+  const monthCat = tenGodCategory(dayEl, BRANCH_ELEMENT[saju.pillars.month.branch]);
+  if (monthCat === "비겁" || monthCat === "인성") support += 2;
+  else drain += 2; // 실령(월령이 빼는 오행)이면 약화
+  const diff = support - drain;
+  const strong = diff > 0;
+  const label = Math.abs(diff) <= 3 ? (strong ? "중화신강" : "중화신약") : strong ? "신강" : "신약";
+  return { strong, label, support, drain };
+}
+
+/**
+ * 억부 용신 휴리스틱(신강/신약에 따라 방향이 반대).
+ * - 신강: 일간을 빼주는 식상·재성·관성이 길(+), 보태는 인성·비겁이 흉(−).
+ * - 신약: 일간을 돕는 인성·비겁이 길(+), 빼가는 식상·재성·관성이 흉(−).
+ */
+function favorByElement(dayElement: Element, strong: boolean): Record<Element, number> {
   const fav: Record<Element, number> = { 목: 0, 화: 0, 토: 0, 금: 0, 수: 0 };
   (Object.keys(fav) as Element[]).forEach((e) => {
     const cat = tenGodCategory(dayElement, e);
-    fav[e] = cat === "비겁" ? -2 : cat === "인성" ? -1 : cat === "식상" ? 2 : cat === "재성" ? 2 : 2; // 관성 +2
+    if (strong) {
+      fav[e] = cat === "비겁" ? -2 : cat === "인성" ? -1 : 2; // 식상/재성/관성 +2
+    } else {
+      // 신약: 인성(생조)이 최우선 용신, 비겁(부조) 보조
+      fav[e] = cat === "인성" ? 3 : cat === "비겁" ? 1 : cat === "관성" ? -1 : -2; // 식상/재성 -2
+    }
   });
   return fav;
 }
@@ -30,6 +61,7 @@ const clamp = (n: number, lo = 20, hi = 94) => Math.max(lo, Math.min(hi, Math.ro
 export function computeFortune(subject: Subject): {
   dayMaster: Daewoon["stem"];
   mainElement: Element;
+  strength: BodyStrength;
   currentAge: number;
   currentYear: number;
   daewoon: Daewoon[];
@@ -44,7 +76,8 @@ export function computeFortune(subject: Subject): {
   const ec = lunar.getEightChar();
   const dayMaster = STEMS[GAN_CN.indexOf(ec.getDayGan())];
   const dayElement = STEM_ELEMENT[dayMaster];
-  const fav = favorByElement(dayElement);
+  const strength = estimateStrength(calculateSaju(subject));
+  const fav = favorByElement(dayElement, strength.strong);
 
   const gender = subject.gender === "male" ? 1 : 0;
   const list = ec.getYun(gender).getDaYun();
@@ -78,5 +111,5 @@ export function computeFortune(subject: Subject): {
     });
   }
 
-  return { dayMaster, mainElement: dayElement, currentAge, currentYear, daewoon };
+  return { dayMaster, mainElement: dayElement, strength, currentAge, currentYear, daewoon };
 }

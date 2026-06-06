@@ -7,7 +7,7 @@ export default async function FortunePage({ params }: { params: { id: string } }
   const report = await getFortune(params.id);
   if (!report) notFound();
 
-  const { subject, daewoon, events, currentAge, intro, mainElement } = report;
+  const { subject, daewoon, events, currentAge, intro, mainElement, strength } = report;
   const accent = ELEMENT_COLOR[mainElement];
 
   return (
@@ -17,7 +17,7 @@ export default async function FortunePage({ params }: { params: { id: string } }
         <span className="label-caps">Fortune Timeline · 운세</span>
         <h1 className="mt-4 font-display text-3xl font-bold text-ivory">인생의 큰 흐름</h1>
         <p className="mt-2 text-sm text-ivory/50">
-          {subject.name} · 主氣 {ELEMENT_HANJA[mainElement]} {mainElement} · 지금 {currentAge}세
+          {subject.name} · 主氣 {ELEMENT_HANJA[mainElement]} {mainElement} · {strength} · 지금 {currentAge}세
         </p>
         <div className="hairline mx-auto mt-8 max-w-[3rem]" />
       </header>

@@ -37,6 +37,8 @@ export interface FortuneReport {
   subject: Subject;
   dayMaster: HeavenlyStem;
   mainElement: Element;
+  /** 신강/신약 판정 라벨 (용신 방향 근거) */
+  strength: string;
   currentAge: number;
   currentYear: number;
   intro: { title: string; summary: string; paragraphs: string[] };

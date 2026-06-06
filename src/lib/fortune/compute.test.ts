@@ -22,9 +22,13 @@ describe("computeFortune (최준혁)", () => {
   it("정확히 하나의 대운이 현재(current)", () => {
     expect(f.daewoon.filter((d) => d.current).length).toBe(1);
   });
-  it("식상·관성 대운(경인/신묘)이 비겁 대운(기축)보다 점수 높음", () => {
+  it("중화신약으로 판정된다", () => {
+    expect(f.strength.strong).toBe(false);
+    expect(f.strength.label).toContain("신약");
+  });
+  it("신약: 비겁(기축) 대운이 식상·관성(경인/신묘) 대운보다 점수 높음", () => {
     const score = (gz: string) => f.daewoon.find((d) => `${d.stem}${d.branch}` === gz)?.score ?? 0;
-    expect(score("경인")).toBeGreaterThan(score("기축"));
-    expect(score("신묘")).toBeGreaterThan(score("기축"));
+    expect(score("기축")).toBeGreaterThan(score("경인"));
+    expect(score("기축")).toBeGreaterThan(score("신묘"));
   });
 });
