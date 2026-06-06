@@ -37,6 +37,14 @@ export interface CompatArea {
   text: string;
 }
 
+/** 9대 심층 분석 카테고리 */
+export interface AnalysisCategory {
+  key: string;
+  title: string;
+  score: number;
+  points: string[];
+}
+
 export interface RelationshipManual {
   items: { label: string; text: string }[];
   warning: string;
@@ -54,6 +62,8 @@ export interface CompatibilityReport {
   timeline: { year: number; score: number }[];
   /** 가족운·자식운 */
   areas: CompatArea[];
+  /** 9대 심층 분석 */
+  analysis: AnalysisCategory[];
   sections: ReportSection[];
   manual: RelationshipManual;
 }

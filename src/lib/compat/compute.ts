@@ -3,7 +3,8 @@
  * 글(섹션/설명서)은 LLM 이, 숫자/근거는 이 모듈이 담당한다.
  */
 import type { EarthlyBranch, Element, HeavenlyStem, Subject } from "@/types/report";
-import type { CompatArea, CompatBasisRow, CompatPerson, CompatScore } from "@/types/compat";
+import type { AnalysisCategory, CompatArea, CompatBasisRow, CompatPerson, CompatScore } from "@/types/compat";
+import { buildAnalysis } from "./analysis";
 import { calculateSaju } from "@/lib/saju/calculate";
 import { GENERATES, CONTROLS, ELEMENTS, STEM_ELEMENT, STEMS, BRANCHES } from "@/lib/saju/constants";
 import { ELEMENT_HANJA } from "@/lib/ui/element";
@@ -115,6 +116,8 @@ export interface CompatComputation {
   timeline: { year: number; score: number }[];
   /** 가족운·자식운 */
   areas: CompatArea[];
+  /** 9대 심층 분석 */
+  analysis: AnalysisCategory[];
 }
 
 /** 특정 연(세운)이 두 사람 원국과 만드는 관계 흐름 점수 */
@@ -331,9 +334,14 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
     timeline.push({ year: yr, score: relationYearScore(yr, ab, bb, aSt, bSt) });
   }
 
+  const analysis = buildAnalysis({
+    a, b, aToB, bToA, score, haps, chungs, samhap, banghap, hyeong, hae,
+    spousePalace, stemHaps, dayStemHarmony, complement, timeline,
+  });
+
   return {
     a, b, aToB, bToA, haps, chungs, stemHaps, dayStemHarmony,
     samhap, banghap, hyeong, hae, spousePalace, gongmangHit,
-    complement, sharedYearPillar, score, basis, extras, timeline, areas,
+    complement, sharedYearPillar, score, basis, extras, timeline, areas, analysis,
   };
 }

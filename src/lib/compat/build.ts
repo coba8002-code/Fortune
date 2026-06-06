@@ -30,6 +30,7 @@ export async function buildCompatReport(
     basis: comp.basis,
     timeline: comp.timeline,
     areas: comp.areas,
+    analysis: comp.analysis,
     sections,
     manual,
   };

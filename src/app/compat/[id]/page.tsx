@@ -14,7 +14,7 @@ export default async function CompatPage({ params }: { params: { id: string } })
   const report = await getCompat(params.id);
   if (!report) notFound();
 
-  const { a, b, score, basis, sections, manual, tagline, timeline, areas } = report;
+  const { a, b, score, basis, sections, manual, tagline, timeline, areas, analysis } = report;
   const currentYear = new Date().getFullYear();
   const colorA = ELEMENT_COLOR[a.mainElement];
   const colorB = ELEMENT_COLOR[b.mainElement];
@@ -115,7 +115,38 @@ export default async function CompatPage({ params }: { params: { id: string } })
         </p>
       </section>
 
-      {/* 본문 섹션 */}
+      {/* 9대 심층 분석 */}
+      <section className="print-page-break mx-auto mt-4 max-w-2xl px-8 py-12">
+        <div className="text-center">
+          <span className="label-caps">In-Depth · 9 Lenses</span>
+          <h2 className="mt-3 font-display text-2xl font-bold text-ivory">9가지 심층 분석</h2>
+          <div className="hairline mx-auto mt-5 max-w-xs" />
+        </div>
+        <div className="mt-8 space-y-7">
+          {analysis.map((cat, i) => (
+            <div key={cat.key}>
+              <div className="flex items-baseline gap-3">
+                <span className="font-display text-sm text-gold/70">{String(i + 1).padStart(2, "0")}</span>
+                <h3 className="flex-1 font-display text-lg font-bold text-ivory">{cat.title}</h3>
+                <span className="font-display text-xs text-ivory/45">{cat.score}</span>
+              </div>
+              <div className="mt-2 h-px w-full bg-white/10">
+                <div className="h-px bg-gold" style={{ width: `${cat.score}%` }} />
+              </div>
+              <ul className="mt-3 space-y-1.5">
+                {cat.points.map((p, j) => (
+                  <li key={j} className="flex gap-3 text-sm leading-relaxed text-ivory/75">
+                    <span className="mt-2 h-px w-3 shrink-0 bg-gold/50" />
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 본문 섹션(서사 요약) */}
       {sections.map((section, i) => (
         <SectionRenderer key={section.key} section={section} index={i + 1} />
       ))}
