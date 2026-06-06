@@ -10,7 +10,9 @@ export function ManualSection({ manual }: { manual: UserManual }) {
     <section className="print-page-break mx-auto max-w-2xl px-8 py-12">
       <header className="text-center">
         <span className="label-caps">User Manual</span>
-        <h2 className="mt-3 font-display text-2xl font-bold text-ivory">취급설명서</h2>
+        <h2 className="mt-3 font-display text-2xl font-bold text-ivory">
+          {manual.subjectName} 취급설명서
+        </h2>
         <p className="mt-2 text-sm text-ivory/50">{manual.modelName} · {manual.releaseInfo}</p>
         <div className="hairline mx-auto mt-5 max-w-xs" />
       </header>
