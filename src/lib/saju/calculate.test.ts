@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateSaju, gregorianToJDN } from "./calculate";
+import { calculateSaju } from "./calculate";
 import type { Subject } from "@/types/report";
 
 function subject(date: string, time?: string): Subject {
@@ -10,14 +10,14 @@ function subject(date: string, time?: string): Subject {
   };
 }
 
-describe("일주(日柱) — 핵심 정확도", () => {
-  it("앵커 2000-01-07 은 갑자일(甲子日)", () => {
+describe("일주(日柱) — 정확도", () => {
+  it("2000-01-07 은 갑자일(甲子日)", () => {
     const s = calculateSaju(subject("2000-01-07"));
     expect(s.pillars.day.stem).toBe("갑");
     expect(s.pillars.day.branch).toBe("자");
   });
 
-  it("불변식: 하루 뒤면 간지가 정확히 1 진행 (갑자 → 을축)", () => {
+  it("하루 뒤면 간지가 정확히 1 진행 (갑자 → 을축)", () => {
     const s = calculateSaju(subject("2000-01-08"));
     expect(s.pillars.day.stem).toBe("을");
     expect(s.pillars.day.branch).toBe("축");
@@ -31,14 +31,14 @@ describe("일주(日柱) — 핵심 정확도", () => {
   });
 });
 
-describe("연주(年柱) — 입춘 경계 근사", () => {
+describe("연주(年柱) — 절기(입춘) 경계", () => {
   it("1984 년은 갑자년(甲子年)", () => {
     const s = calculateSaju(subject("1984-06-01"));
     expect(s.pillars.year.stem).toBe("갑");
     expect(s.pillars.year.branch).toBe("자");
   });
 
-  it("입춘(2/4) 이전은 전년도 간지", () => {
+  it("입춘 이전은 전년도 간지(계해), 이후는 갑자", () => {
     const before = calculateSaju(subject("1984-02-03")).pillars.year;
     const after = calculateSaju(subject("1984-02-05")).pillars.year;
     expect(before.branch).toBe("해"); // 1983 계해년
@@ -52,7 +52,7 @@ describe("calculateSaju — 구조/스냅샷", () => {
     expect(s.pillars.hour).toBeUndefined();
   });
 
-  it("전체 원국 스냅샷 (1995-03-21 13:40)", () => {
+  it("전체 원국 스냅샷 (1995-03-21 13:40) — 을해/기묘/신해/을미", () => {
     const s = calculateSaju(subject("1995-03-21", "13:40"));
     expect(s).toMatchInlineSnapshot(`
       {
@@ -90,19 +90,18 @@ describe("calculateSaju — 구조/스냅샷", () => {
     `);
   });
 
-  it("음력 입력은 명시적으로 거부", () => {
-    expect(() =>
-      calculateSaju({
-        name: "x",
-        birth: { date: "1995-03-21", calendar: "lunar" },
-        gender: "female",
-      }),
-    ).toThrow(/음력/);
-  });
-});
-
-describe("gregorianToJDN", () => {
-  it("2000-01-01 정오 = JDN 2451545", () => {
-    expect(gregorianToJDN(2000, 1, 1)).toBe(2451545);
+  it("음력 입력을 양력으로 변환해 동일 원국을 낸다 (음 1991-9-1 = 양 1991-10-08)", () => {
+    const fromLunar = calculateSaju({
+      name: "x",
+      birth: { date: "1991-09-01", calendar: "lunar" },
+      gender: "female",
+    });
+    const fromSolar = calculateSaju({
+      name: "x",
+      birth: { date: "1991-10-08", calendar: "solar" },
+      gender: "female",
+    });
+    expect(fromLunar.pillars.day).toEqual(fromSolar.pillars.day);
+    expect(fromLunar.pillars.year).toEqual(fromSolar.pillars.year);
   });
 });

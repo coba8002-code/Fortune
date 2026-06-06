@@ -19,7 +19,7 @@ AI 휴먼 영상(STEP4)을 MVP에서 빼는 이유: 영상 생성 API 단가·�
 UI보다 먼저, **단일 소스 `ReportData`를 만드는 파이프라인**을 세움.
 
 - [x] `ReportData`/`SajuChart` 타입 정의(REPORT_MODEL.md 기준) — `src/types/report.ts`
-- [x] 만세력 계산 모듈(격리된 패키지) — 일주 JDN 정확, 연/월/시 절기 근사 (`src/lib/saju`)
+- [x] 만세력 계산 모듈(격리된 패키지) — **lunar-javascript** 기반 八字, 절기 경계·음양력(윤달) 변환 정확 (`src/lib/saju`). 진태양시 보정은 추후.
 - [x] 계산 스냅샷 테스트(알려진 생년월일 → 원국 고정값 검증) — `calculate.test.ts`
 - [x] LLM 해석 단계: 사주 원국 → 카드 연출 텍스트 + `sections`(ContentBlock JSON) — `src/lib/llm/generateReport.ts` (`claude-opus-4-8`, 구조화 출력). 수치는 계산이, 글은 LLM 이 담당. 병합은 `src/lib/report/build.ts`.
 - [x] 더미 `ReportData` 픽스처 1개(이후 UI가 이것으로 개발) — `src/fixtures/sampleReport.ts`
