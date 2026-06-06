@@ -35,6 +35,7 @@ npm run pdf -- SAMPLE        # report/SAMPLE?print=1 → ./tmp/SAMPLE.pdf
 | STEP | 내용 | 상태 |
 |------|------|------|
 | 0 | 데이터 모델 + 만세력 계산 모듈 + 샘플 픽스처 | ✅ (일주 정확·연월시 근사, 스냅샷 테스트) |
+| 0+ | LLM 본문 생성(Claude API) + 생성 오케스트레이터 + `POST /api/reports` | ✅ (구조화 출력, 병합 로직 테스트) |
 | 1 | SSR 캐릭터 카드 | ✅ |
 | 2 | 스크롤 웹 리포트(섹션 렌더러 + 오행 SVG 차트) | ✅ |
 | 3 | PDF 파이프라인(인쇄 레이아웃 + Playwright 워커 + 상태 API) | ✅ 코드 (브라우저 바이너리 차단 환경에서 E2E 미실행) |
