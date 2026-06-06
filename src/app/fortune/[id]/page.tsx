@@ -1,13 +1,14 @@
 import { notFound } from "next/navigation";
 import { getFortune } from "@/lib/fortune/store";
 import { LifeGraph } from "@/components/LifeGraph";
+import { YearlyGraph } from "@/components/YearlyGraph";
 import { ELEMENT_COLOR, ELEMENT_HANJA } from "@/lib/ui/element";
 
 export default async function FortunePage({ params }: { params: { id: string } }) {
   const report = await getFortune(params.id);
   if (!report) notFound();
 
-  const { subject, daewoon, events, currentAge, intro, mainElement, strength } = report;
+  const { subject, daewoon, events, currentAge, currentYear, intro, mainElement, strength, yearly } = report;
   const accent = ELEMENT_COLOR[mainElement];
 
   return (
@@ -37,6 +38,22 @@ export default async function FortunePage({ params }: { params: { id: string } }
             <p key={i} className="leading-[1.85] text-ivory/80">{p}</p>
           ))}
         </div>
+      </section>
+
+      {/* 연도별 금전·연애·건강 운 */}
+      <section className="print-page-break mx-auto mt-4 max-w-2xl px-8 py-12">
+        <div className="text-center">
+          <span className="label-caps">By Year · 歲運</span>
+          <h2 className="mt-3 font-display text-2xl font-bold text-ivory">연도별 금전 · 연애 · 건강운</h2>
+          <div className="hairline mx-auto mt-5 max-w-xs" />
+        </div>
+        <div className="mt-6">
+          <YearlyGraph yearly={yearly} currentYear={currentYear} />
+        </div>
+        <p className="mt-4 text-center text-xs leading-relaxed text-ivory/45">
+          그 해 세운(歲運) 간지의 작용으로 본 흐름입니다. 금전은 식상·재성, 연애는 인연성(배우자성),
+          건강은 일간 강약(용신)을 기준으로 계산했습니다.
+        </p>
       </section>
 
       {/* 10년 대운 타임라인 */}

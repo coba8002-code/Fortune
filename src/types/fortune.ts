@@ -23,6 +23,14 @@ export interface Daewoon {
   summary?: string;
 }
 
+export interface YearPoint {
+  year: number;
+  age: number;
+  money: number; // 금전운
+  love: number; // 연애운
+  health: number; // 건강운
+}
+
 export interface LifeEvent {
   age: number;
   year: number;
@@ -43,5 +51,7 @@ export interface FortuneReport {
   currentYear: number;
   intro: { title: string; summary: string; paragraphs: string[] };
   daewoon: Daewoon[];
+  /** 연도별 금전·연애·건강 운 (세운 기준) */
+  yearly: YearPoint[];
   events: LifeEvent[];
 }

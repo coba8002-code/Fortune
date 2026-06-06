@@ -4,7 +4,7 @@
  */
 import { Solar, Lunar } from "lunar-javascript";
 import type { Element, Subject } from "@/types/report";
-import type { Daewoon } from "@/types/fortune";
+import type { Daewoon, YearPoint } from "@/types/fortune";
 import { STEM_ELEMENT, BRANCH_ELEMENT, STEMS, BRANCHES, tenGodCategory } from "@/lib/saju/constants";
 import { calculateSaju } from "@/lib/saju/calculate";
 import type { SajuChart } from "@/types/report";
@@ -58,6 +58,40 @@ function favorByElement(dayElement: Element, strong: boolean): Record<Element, n
 
 const clamp = (n: number, lo = 20, hi = 94) => Math.max(lo, Math.min(hi, Math.round(n)));
 
+/** 세운(연 간지) — 연도에서 직접 산출. 1984 → 갑자. */
+function yearGanzhi(year: number) {
+  const s = (((year - 4) % 10) + 10) % 10;
+  const b = (((year - 4) % 12) + 12) % 12;
+  return { stem: STEMS[s], branch: BRANCHES[b] };
+}
+
+/** 영역별(금전·연애·건강) 오행 길흉 가중. 신약/신강·성별 반영. */
+function domainFavor(
+  dayElement: Element,
+  gender: "male" | "female",
+  domain: "money" | "love" | "health",
+  strong: boolean,
+): Record<Element, number> {
+  const f: Record<Element, number> = { 목: 0, 화: 0, 토: 0, 금: 0, 수: 0 };
+  (Object.keys(f) as Element[]).forEach((e) => {
+    const cat = tenGodCategory(dayElement, e);
+    if (domain === "health") {
+      // 건강 = 일간 강약(용신) — 신약이면 인성/비겁이 길
+      f[e] = strong
+        ? cat === "비겁" ? -2 : cat === "인성" ? -1 : 2
+        : cat === "인성" ? 3 : cat === "비겁" ? 1 : cat === "관성" ? -1 : -2;
+    } else if (domain === "money") {
+      // 재물 = 식상생재 라인(식상·재성), 비겁은 감당
+      f[e] = cat === "식상" ? 2 : cat === "재성" ? 2 : cat === "비겁" ? 1 : -1;
+    } else {
+      // 연애 = 배우자성(남=재성, 여=관성) 활성 + 매력(식상), 비겁은 경쟁
+      if (gender === "male") f[e] = cat === "재성" ? 3 : cat === "식상" ? 1 : cat === "비겁" ? -2 : cat === "관성" ? -1 : 0;
+      else f[e] = cat === "관성" ? 3 : cat === "식상" ? 1 : cat === "비겁" ? -2 : cat === "재성" ? -1 : 0;
+    }
+  });
+  return f;
+}
+
 export function computeFortune(subject: Subject): {
   dayMaster: Daewoon["stem"];
   mainElement: Element;
@@ -65,6 +99,7 @@ export function computeFortune(subject: Subject): {
   currentAge: number;
   currentYear: number;
   daewoon: Daewoon[];
+  yearly: YearPoint[];
 } {
   const [y, mo, d] = subject.birth.date.split("-").map((n) => parseInt(n, 10));
   const [hh, mm] = (subject.birth.time ?? "12:00").split(":").map((n) => parseInt(n, 10));
@@ -111,5 +146,18 @@ export function computeFortune(subject: Subject): {
     });
   }
 
-  return { dayMaster, mainElement: dayElement, strength, currentAge, currentYear, daewoon };
+  // ── 연도별(세운) 금전·연애·건강 운 ───────────────────────
+  const favMoney = domainFavor(dayElement, subject.gender, "money", strength.strong);
+  const favLove = domainFavor(dayElement, subject.gender, "love", strength.strong);
+  const favHealth = domainFavor(dayElement, subject.gender, "health", strength.strong);
+  const yearly: YearPoint[] = [];
+  for (let yr = currentYear - 2; yr <= currentYear + 12; yr++) {
+    const { stem, branch } = yearGanzhi(yr);
+    const se = STEM_ELEMENT[stem];
+    const be = BRANCH_ELEMENT[branch];
+    const sc = (f: Record<Element, number>) => clamp(50 + f[se] * 7 + f[be] * 7);
+    yearly.push({ year: yr, age: yr - y + 1, money: sc(favMoney), love: sc(favLove), health: sc(favHealth) });
+  }
+
+  return { dayMaster, mainElement: dayElement, strength, currentAge, currentYear, daewoon, yearly };
 }

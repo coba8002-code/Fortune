@@ -59,5 +59,6 @@ export const sampleFortune: FortuneReport = {
     ],
   },
   daewoon,
+  yearly: c.yearly,
   events,
 };
