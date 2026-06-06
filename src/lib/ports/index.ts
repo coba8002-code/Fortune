@@ -23,21 +23,6 @@ export interface PdfStorage {
   getUrl(id: string): Promise<string | null>;
 }
 
-export type CheckoutStatus = "created" | "paid" | "failed";
-
-export interface Checkout {
-  id: string;
-  status: CheckoutStatus;
-  amount: number;
-  currency: string;
-}
-
-/** 결제(현재 스텁 → 향후 Stripe/PG). */
-export interface PaymentGateway {
-  createCheckout(input: { amount: number; currency: string }): Promise<Checkout>;
-  verifyPaid(checkoutId: string): Promise<boolean>;
-}
-
 /** 분석/PDF 작업 큐(현재 인라인 → 향후 SQS/Cloud Tasks/워커). */
 export interface JobQueue {
   /** 리포트 PDF 생성 작업 등록. */

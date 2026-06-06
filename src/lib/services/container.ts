@@ -7,18 +7,16 @@
  * 주의: 인메모리/로컬 어댑터는 단일 프로세스 기준. 서버리스 다중 인스턴스에서는
  * 영속 어댑터로 교체해야 인스턴스 간 상태가 공유된다.
  */
-import type { JobQueue, PaymentGateway, PdfStorage, ReportStore } from "@/lib/ports";
+import type { JobQueue, PdfStorage, ReportStore } from "@/lib/ports";
 import { createMemoryReportStore } from "@/lib/adapters/memoryReportStore";
 import { createFileReportStore } from "@/lib/adapters/fileReportStore";
 import { createLocalPdfStorage } from "@/lib/adapters/localPdfStorage";
-import { createStubPayment } from "@/lib/adapters/stubPayment";
 import { createInlineJobQueue } from "@/lib/adapters/inlineJobQueue";
 import { sampleReport } from "@/fixtures/sampleReport";
 
 export interface Services {
   reportStore: ReportStore;
   pdfStorage: PdfStorage;
-  payment: PaymentGateway;
   jobQueue: JobQueue;
 }
 
@@ -33,9 +31,8 @@ function build(): Services {
       ? createFileReportStore(undefined, [sampleReport])
       : createMemoryReportStore([sampleReport]); // 데모: 샘플 시드
   const pdfStorage = createLocalPdfStorage();
-  const payment = createStubPayment();
   const jobQueue = createInlineJobQueue({ store: reportStore, storage: pdfStorage });
-  return { reportStore, pdfStorage, payment, jobQueue };
+  return { reportStore, pdfStorage, jobQueue };
 }
 
 export function getServices(): Services {

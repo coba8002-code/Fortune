@@ -6,8 +6,8 @@ import type { Subject } from "@/types/report";
 /**
  * POST /api/reports — 입력을 받아 결제 → 분석 → 저장 → PDF 큐 흐름을 실행한다.
  *
- * 설계(ARCHITECTURE.md §3): 결제 → 분석(ReportData 생성) → DB 저장 → 웹 즉시 제공 +
- * PDF 비동기 생성. 현재는 스텁 결제 + 인메모리 저장 + 인라인 큐(상태만 pending) 어댑터.
+ * 설계(ARCHITECTURE.md §3): 분석(ReportData 생성) → 저장 → 웹 즉시 제공 + PDF 비동기 생성.
+ * (결제 단계는 제외 — 무료 제공.)
  */
 export async function POST(req: Request) {
   let body: Partial<Subject>;
@@ -31,22 +31,16 @@ export async function POST(req: Request) {
     );
   }
 
-  const { payment, reportStore, jobQueue } = getServices();
+  const { reportStore, jobQueue } = getServices();
 
   try {
-    // 1) 결제 (스텁: 즉시 승인)
-    const checkout = await payment.createCheckout({ amount: 9900, currency: "KRW" });
-    if (!(await payment.verifyPaid(checkout.id))) {
-      return NextResponse.json({ error: "결제가 확인되지 않았습니다." }, { status: 402 });
-    }
-
-    // 2) 분석 → ReportData 생성
+    // 1) 분석 → ReportData 생성
     const report = await buildReport(body as Subject);
 
-    // 3) 저장 (웹 리포트 즉시 열람 가능)
+    // 2) 저장 (웹 리포트 즉시 열람 가능)
     await reportStore.save(report);
 
-    // 4) PDF 비동기 생성 작업 등록
+    // 3) PDF 비동기 생성 작업 등록
     await jobQueue.enqueuePdf(report.id);
 
     return NextResponse.json(

@@ -4,7 +4,6 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { createMemoryReportStore } from "./memoryReportStore";
 import { createFileReportStore } from "./fileReportStore";
-import { createStubPayment } from "./stubPayment";
 import { createInlineJobQueue } from "./inlineJobQueue";
 import type { PdfStorage } from "@/lib/ports";
 import { sampleReport } from "@/fixtures/sampleReport";
@@ -36,16 +35,6 @@ describe("fileReportStore", () => {
     expect((await reopened.get("F1"))?.pdf?.status).toBe("ready");
     expect((await reopened.get(sampleReport.id))?.id).toBe(sampleReport.id);
     expect(await reopened.get("missing")).toBeNull();
-  });
-});
-
-describe("stubPayment", () => {
-  it("createCheckout 는 즉시 paid, verifyPaid true", async () => {
-    const pay = createStubPayment();
-    const c = await pay.createCheckout({ amount: 9900, currency: "KRW" });
-    expect(c.status).toBe("paid");
-    expect(await pay.verifyPaid(c.id)).toBe(true);
-    expect(await pay.verifyPaid("chk_unknown")).toBe(false);
   });
 });
 
