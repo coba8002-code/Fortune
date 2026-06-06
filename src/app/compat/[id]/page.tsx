@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getCompat } from "@/lib/compat/store";
 import { CompatHero } from "@/components/CompatHero";
 import { ElementRadarDual } from "@/components/ElementRadarDual";
+import { RelationshipTimeline } from "@/components/RelationshipTimeline";
 import { SectionRenderer } from "@/components/SectionRenderer";
 import { ELEMENT_COLOR } from "@/lib/ui/element";
 
@@ -13,7 +14,8 @@ export default async function CompatPage({ params }: { params: { id: string } })
   const report = await getCompat(params.id);
   if (!report) notFound();
 
-  const { a, b, score, basis, sections, manual, tagline } = report;
+  const { a, b, score, basis, sections, manual, tagline, timeline } = report;
+  const currentYear = new Date().getFullYear();
   const colorA = ELEMENT_COLOR[a.mainElement];
   const colorB = ELEMENT_COLOR[b.mainElement];
 
@@ -74,6 +76,22 @@ export default async function CompatPage({ params }: { params: { id: string } })
             </div>
           ))}
         </div>
+      </section>
+
+      {/* 시기별 궁합 — 연도별 관계 흐름 */}
+      <section className="print-page-break mx-auto mt-4 max-w-2xl px-8 py-12">
+        <div className="text-center">
+          <span className="label-caps">By Year · 時期</span>
+          <h2 className="mt-3 font-display text-2xl font-bold text-ivory">시기별 궁합 흐름</h2>
+          <div className="hairline mx-auto mt-5 max-w-xs" />
+        </div>
+        <div className="mt-6">
+          <RelationshipTimeline timeline={timeline} currentYear={currentYear} />
+        </div>
+        <p className="mt-4 text-center text-xs leading-relaxed text-ivory/45">
+          그 해 세운(歲運)이 두 사람 원국과 만드는 합·충·천간합으로 본 관계 흐름입니다.
+          합이 많은 해는 가까워지고, 충·형해가 겹치는 해는 마찰이 커지기 쉽습니다.
+        </p>
       </section>
 
       {/* 본문 섹션 */}

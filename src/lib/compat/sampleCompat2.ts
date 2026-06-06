@@ -88,6 +88,7 @@ export const sampleCompat2: CompatibilityReport = {
   tagline: "강하게 끌리고, 강하게 부딪히는 — 자극으로 자라는 사이.",
   score: comp.score,
   basis,
+  timeline: comp.timeline,
   sections,
   manual: {
     items: [

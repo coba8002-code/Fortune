@@ -43,6 +43,8 @@ export interface CompatibilityReport {
   tagline: string;
   score: CompatScore;
   basis: CompatBasisRow[];
+  /** 연도별 관계 흐름(세운) */
+  timeline: { year: number; score: number }[];
   sections: ReportSection[];
   manual: RelationshipManual;
 }

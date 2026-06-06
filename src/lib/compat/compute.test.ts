@@ -49,4 +49,11 @@ describe("천간합 — 최준혁(己) × 정소영(甲)", () => {
   it("충 2개(묘유·진술) 감지", () => {
     expect(c.chungs.length).toBe(2);
   });
+  it("연도별 관계 흐름 타임라인(15개, 0~100)", () => {
+    expect(c.timeline.length).toBe(15);
+    for (const t of c.timeline) {
+      expect(t.score).toBeGreaterThanOrEqual(0);
+      expect(t.score).toBeLessThanOrEqual(100);
+    }
+  });
 });

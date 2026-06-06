@@ -28,6 +28,7 @@ export async function buildCompatReport(
     tagline,
     score: comp.score,
     basis: comp.basis,
+    timeline: comp.timeline,
     sections,
     manual,
   };

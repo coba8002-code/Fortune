@@ -77,6 +77,7 @@ export const sampleCompat: CompatibilityReport = {
   tagline: "흙이 길러낸 금 — 받쳐주고, 빛나는 사이.",
   score: comp.score,
   basis: comp.basis,
+  timeline: comp.timeline,
   sections,
   manual: {
     items: [

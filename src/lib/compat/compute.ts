@@ -111,6 +111,29 @@ export interface CompatComputation {
   basis: CompatBasisRow[];
   /** 심화 근거(삼합·방합/형·해/배우자궁/공망) */
   extras: CompatBasisRow[];
+  /** 연도별 관계 흐름(세운이 두 원국과 만드는 합·충) */
+  timeline: { year: number; score: number }[];
+}
+
+/** 특정 연(세운)이 두 사람 원국과 만드는 관계 흐름 점수 */
+function relationYearScore(
+  yr: number,
+  aBr: EarthlyBranch[],
+  bBr: EarthlyBranch[],
+  aSt: HeavenlyStem[],
+  bSt: HeavenlyStem[],
+): number {
+  const ys = STEMS[(((yr - 4) % 10) + 10) % 10];
+  const yb = BRANCHES[(((yr - 4) % 12) + 12) % 12];
+  let hap = 0, chung = 0, hh = 0, stemHap = 0;
+  for (const br of [...aBr, ...bBr]) {
+    if (SIX_HARMONY[yb] === br) hap++;
+    if (inSameGroup(SAMHAP, yb, br) || inSameGroup(BANGHAP, yb, br)) hap++;
+    if (CLASH[yb] === br) chung++;
+    if (isHyeong(yb, br) || HAE_PAIRS.has(yb + br)) hh++;
+  }
+  for (const st of [...aSt, ...bSt]) if (STEM_HARMONY[ys] === st) stemHap++;
+  return clamp(52 + hap * 4 + stemHap * 4 - chung * 6 - hh * 3);
 }
 
 export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComputation {
@@ -260,9 +283,18 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
     extras.push({ label: "공망", text: "한쪽의 배우자 자리가 상대의 공망에 들어 인연이 ‘허(虛)’하게 느껴질 수 있음 — 표현으로 채워야." });
   basis.push(...extras);
 
+  // 연도별 관계 흐름 (올해 기준 ±window)
+  const aSt = stemsOf(a);
+  const bSt = stemsOf(b);
+  const thisYear = new Date().getFullYear();
+  const timeline: { year: number; score: number }[] = [];
+  for (let yr = thisYear - 2; yr <= thisYear + 12; yr++) {
+    timeline.push({ year: yr, score: relationYearScore(yr, ab, bb, aSt, bSt) });
+  }
+
   return {
     a, b, aToB, bToA, haps, chungs, stemHaps, dayStemHarmony,
     samhap, banghap, hyeong, hae, spousePalace, gongmangHit,
-    complement, sharedYearPillar, score, basis, extras,
+    complement, sharedYearPillar, score, basis, extras, timeline,
   };
 }
