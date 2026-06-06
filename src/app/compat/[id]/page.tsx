@@ -14,7 +14,7 @@ export default async function CompatPage({ params }: { params: { id: string } })
   const report = await getCompat(params.id);
   if (!report) notFound();
 
-  const { a, b, score, basis, sections, manual, tagline, timeline } = report;
+  const { a, b, score, basis, sections, manual, tagline, timeline, areas } = report;
   const currentYear = new Date().getFullYear();
   const colorA = ELEMENT_COLOR[a.mainElement];
   const colorB = ELEMENT_COLOR[b.mainElement];
@@ -73,6 +73,27 @@ export default async function CompatPage({ params }: { params: { id: string } })
             <div key={i} className="flex gap-4 border-b border-white/[0.05] py-3.5">
               <div className="w-24 shrink-0 font-display text-sm text-gold/80">{row.label}</div>
               <div className="text-sm leading-relaxed text-ivory/85">{row.text}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 가족운 · 자식운 */}
+      <section className="print-page-break mx-auto mt-4 max-w-2xl px-8 py-12">
+        <span className="label-caps">Family · 家族 · 子息</span>
+        <h2 className="mt-3 font-display text-2xl font-bold text-ivory">가족운 · 자식운</h2>
+        <div className="hairline mt-5" />
+        <div className="mt-6 space-y-6">
+          {areas.map((area) => (
+            <div key={area.key}>
+              <div className="flex items-center gap-4">
+                <span className="w-14 shrink-0 font-display text-sm text-ivory/70">{area.label}</span>
+                <div className="h-px flex-1 bg-white/10">
+                  <div className="h-px bg-gold" style={{ width: `${area.score}%` }} />
+                </div>
+                <span className="w-8 text-right font-display text-xs text-ivory/45">{area.score}</span>
+              </div>
+              <p className="mt-2 pl-[4.5rem] text-sm leading-relaxed text-ivory/70">{area.text}</p>
             </div>
           ))}
         </div>

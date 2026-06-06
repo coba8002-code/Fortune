@@ -30,6 +30,13 @@ export interface CompatBasisRow {
   text: string;
 }
 
+export interface CompatArea {
+  key: "family" | "children";
+  label: string;
+  score: number;
+  text: string;
+}
+
 export interface RelationshipManual {
   items: { label: string; text: string }[];
   warning: string;
@@ -45,6 +52,8 @@ export interface CompatibilityReport {
   basis: CompatBasisRow[];
   /** 연도별 관계 흐름(세운) */
   timeline: { year: number; score: number }[];
+  /** 가족운·자식운 */
+  areas: CompatArea[];
   sections: ReportSection[];
   manual: RelationshipManual;
 }

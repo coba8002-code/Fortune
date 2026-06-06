@@ -3,7 +3,7 @@
  * 글(섹션/설명서)은 LLM 이, 숫자/근거는 이 모듈이 담당한다.
  */
 import type { EarthlyBranch, Element, HeavenlyStem, Subject } from "@/types/report";
-import type { CompatBasisRow, CompatPerson, CompatScore } from "@/types/compat";
+import type { CompatArea, CompatBasisRow, CompatPerson, CompatScore } from "@/types/compat";
 import { calculateSaju } from "@/lib/saju/calculate";
 import { GENERATES, CONTROLS, ELEMENTS, STEM_ELEMENT, STEMS, BRANCHES } from "@/lib/saju/constants";
 import { ELEMENT_HANJA } from "@/lib/ui/element";
@@ -113,6 +113,8 @@ export interface CompatComputation {
   extras: CompatBasisRow[];
   /** 연도별 관계 흐름(세운이 두 원국과 만드는 합·충) */
   timeline: { year: number; score: number }[];
+  /** 가족운·자식운 */
+  areas: CompatArea[];
 }
 
 /** 특정 연(세운)이 두 사람 원국과 만드는 관계 흐름 점수 */
@@ -283,6 +285,43 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
     extras.push({ label: "공망", text: "한쪽의 배우자 자리가 상대의 공망에 들어 인연이 ‘허(虛)’하게 느껴질 수 있음 — 표현으로 채워야." });
   basis.push(...extras);
 
+  // ── 가족운 · 자식운 ───────────────────────────────────────
+  const inseongSum = a.saju.tenGods.인성 + b.saju.tenGods.인성;
+  const familyScore = clamp(
+    54 + haps.length * 5 + samhap * 3 - chungs.length * 6 - (hyeong + hae) * 2 +
+      (spouseHap ? 8 : spouseChung ? -8 : 0) + inseongSum * 2,
+  );
+  const childStar = (p: CompatPerson) =>
+    p.subject.gender === "male" ? p.saju.tenGods.관성 : p.saju.tenGods.식상;
+  const childSum = childStar(a) + childStar(b);
+  const hourBoth = Boolean(a.saju.pillars.hour && b.saju.pillars.hour);
+  const childrenScore = clamp(48 + childSum * 8 + (hourBoth ? 6 : 0));
+  const areas = [
+    {
+      key: "family" as const,
+      label: "가족운",
+      score: familyScore,
+      text:
+        familyScore >= 75
+          ? "합이 풍부해 가정이 화목하고 안정적입니다. 양가·집안 행사에서도 호흡이 잘 맞습니다."
+          : familyScore >= 55
+            ? "가정운은 무난합니다. 충(沖)을 다스리고 인성(포용)을 키우면 더 단단해집니다."
+            : "충·형해가 있어 가족 내 마찰 관리가 필요합니다. 거리·역할을 분명히 하면 안정됩니다.",
+    },
+    {
+      key: "children" as const,
+      label: "자식운",
+      score: childrenScore,
+      text:
+        childrenScore >= 72
+          ? "자식성이 또렷해 자녀와의 인연이 좋고 양육 호흡도 잘 맞습니다."
+          : childrenScore >= 52
+            ? "자녀운은 무난합니다. 시기(세운)를 잘 고르면 인연이 열립니다."
+            : "두 사람 모두 자식성이 약한 편이라, 자녀 계획은 시기·건강을 함께 살피면 좋습니다." +
+              (hourBoth ? "" : " (출생시각이 있으면 자녀궁 분석이 더 정확합니다.)"),
+    },
+  ];
+
   // 연도별 관계 흐름 (올해 기준 ±window)
   const aSt = stemsOf(a);
   const bSt = stemsOf(b);
@@ -295,6 +334,6 @@ export function computeCompatibility(subjA: Subject, subjB: Subject): CompatComp
   return {
     a, b, aToB, bToA, haps, chungs, stemHaps, dayStemHarmony,
     samhap, banghap, hyeong, hae, spousePalace, gongmangHit,
-    complement, sharedYearPillar, score, basis, extras, timeline,
+    complement, sharedYearPillar, score, basis, extras, timeline, areas,
   };
 }

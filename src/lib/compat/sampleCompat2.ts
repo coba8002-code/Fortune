@@ -89,6 +89,7 @@ export const sampleCompat2: CompatibilityReport = {
   score: comp.score,
   basis,
   timeline: comp.timeline,
+  areas: comp.areas,
   sections,
   manual: {
     items: [
