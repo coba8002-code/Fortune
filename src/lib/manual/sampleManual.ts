@@ -8,7 +8,7 @@ import type { UserManual } from "@/types/manual";
 
 export const sampleManual: UserManual = {
   id: "DEMO1980",
-  subjectName: "1980.12.02생",
+  subjectName: "최준혁",
   rank: "SR",
   modelName: "장인형(己土)",
   releaseInfo: "1980년형 · 주성분 토·금",
