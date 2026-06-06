@@ -12,6 +12,17 @@ declare module "lunar-javascript" {
     getDayZhi(): string;
     getTimeGan(): string;
     getTimeZhi(): string;
+    /** 대운. gender: 1=남, 0=여 */
+    getYun(gender: number, sect?: number): Yun;
+  }
+  export interface DaYun {
+    getGanZhi(): string;
+    getStartAge(): number;
+    getStartYear(): number;
+    getEndYear(): number;
+  }
+  export interface Yun {
+    getDaYun(): DaYun[];
   }
   export interface Lunar {
     getEightChar(): EightChar;
