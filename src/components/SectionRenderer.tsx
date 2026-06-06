@@ -1,21 +1,25 @@
 import type { ContentBlock, ReportSection } from "@/types/report";
+import { GOLD } from "@/lib/ui/element";
+
+const CALLOUT: Record<string, { label: string; color: string }> = {
+  tip: { label: "조언", color: "#7C9A74" },
+  warning: { label: "주의", color: "#C2705A" },
+  highlight: { label: "핵심", color: GOLD },
+};
 
 /**
- * STEP2 — 스크롤 리포트 섹션 렌더러.
- * LLM 이 만든 구조화 블록(ContentBlock[])만 받아 그린다.
- * 자유 산문이 아니라 블록 구조라 레이아웃이 깨지지 않고 섹션 추가/재정렬이 자유롭다.
+ * STEP2 — 스크롤 리포트 섹션. 이모지 대신 번호·스몰캡스·헤어라인으로 정돈.
  */
-export function SectionRenderer({ section }: { section: ReportSection }) {
+export function SectionRenderer({ section, index }: { section: ReportSection; index: number }) {
   return (
-    <section className="print-page-break mx-auto max-w-2xl px-6 py-10">
-      <header className="mb-4">
-        <h2 className="text-2xl font-bold">
-          {section.emoji && <span className="mr-2">{section.emoji}</span>}
-          {section.title}
-        </h2>
-        <p className="mt-1 text-white/60">{section.summary}</p>
+    <section className="print-page-break mx-auto max-w-2xl px-8 py-12">
+      <header className="mb-6">
+        <span className="font-display text-sm text-gold/70">{String(index).padStart(2, "0")}</span>
+        <h2 className="mt-1 font-display text-2xl font-bold text-ivory">{section.title}</h2>
+        <p className="mt-2 text-sm leading-relaxed text-ivory/50">{section.summary}</p>
+        <div className="hairline mt-5" />
       </header>
-      <div className="space-y-4">
+      <div className="space-y-5">
         {section.body.map((block, i) => (
           <Block key={i} block={block} />
         ))}
@@ -27,48 +31,48 @@ export function SectionRenderer({ section }: { section: ReportSection }) {
 function Block({ block }: { block: ContentBlock }) {
   switch (block.type) {
     case "paragraph":
-      return <p className="leading-relaxed text-white/85">{block.text}</p>;
+      return <p className="leading-[1.85] text-ivory/80">{block.text}</p>;
 
     case "list":
       return (
-        <ul className="space-y-1.5">
+        <ul className="space-y-2">
           {block.items.map((item, i) => (
-            <li key={i} className="flex gap-2 text-white/85">
-              <span className="text-white/40">•</span>
-              <span>{item}</span>
+            <li key={i} className="flex gap-3 text-ivory/80">
+              <span className="mt-2 h-px w-4 shrink-0 bg-gold/50" />
+              <span className="leading-relaxed">{item}</span>
             </li>
           ))}
         </ul>
       );
 
     case "callout": {
-      const tone = {
-        tip: { border: "#3DAE5B", bg: "rgba(61,174,91,0.12)", icon: "💡" },
-        warning: { border: "#E0533D", bg: "rgba(224,83,61,0.12)", icon: "⚠️" },
-        highlight: { border: "#F4C95D", bg: "rgba(244,201,93,0.12)", icon: "✨" },
-      }[block.tone];
+      const tone = CALLOUT[block.tone];
       return (
-        <div
-          className="rounded-lg border-l-4 px-4 py-3 text-white/90"
-          style={{ borderColor: tone.border, background: tone.bg }}
-        >
-          <span className="mr-2">{tone.icon}</span>
-          {block.text}
+        <div className="border-l pl-5" style={{ borderColor: tone.color }}>
+          <div
+            className="font-display text-[11px] uppercase tracking-[0.25em]"
+            style={{ color: tone.color }}
+          >
+            {tone.label}
+          </div>
+          <p className="mt-1.5 leading-relaxed text-ivory/80">{block.text}</p>
         </div>
       );
     }
 
     case "gauge":
       return (
-        <div className="flex items-center gap-3">
-          <span className="w-24 shrink-0 text-sm text-white/60">{block.label}</span>
-          <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-white/10">
+        <div className="flex items-center gap-4">
+          <span className="w-24 shrink-0 font-display text-xs tracking-wider text-ivory/50">
+            {block.label}
+          </span>
+          <div className="h-px flex-1 bg-white/10">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-200"
-              style={{ width: `${Math.max(0, Math.min(100, block.value))}%` }}
+              className="h-px"
+              style={{ width: `${Math.max(0, Math.min(100, block.value))}%`, background: GOLD }}
             />
           </div>
-          <span className="w-9 text-right text-sm text-white/50">{block.value}</span>
+          <span className="w-8 text-right font-display text-xs text-ivory/45">{block.value}</span>
         </div>
       );
   }

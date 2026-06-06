@@ -2,20 +2,25 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center">
-      <h1 className="text-4xl font-black">
-        나의 <span className="text-amber-400">운명</span> 프로파일
+    <main className="flex min-h-screen flex-col items-center justify-center px-8 text-center">
+      <span className="label-caps">Saju × Psychology</span>
+      <h1 className="mt-6 font-display text-5xl font-bold leading-tight tracking-tight text-ivory">
+        나의 운명
+        <br />
+        프로파일
       </h1>
-      <p className="max-w-md text-white/70">
-        사주 × 심리로 읽는 캐릭터 카드와 30페이지 리포트. 웹으로 보고, PDF로 소장하세요.
+      <div className="hairline my-8 w-24" />
+      <p className="max-w-sm leading-relaxed text-ivory/55">
+        사주와 심리로 읽어내는 한 사람의 결.
+        <br />
+        캐릭터 카드부터 취급설명서까지, 한 권의 리포트로.
       </p>
       <Link
         href="/report/SAMPLE"
-        className="rounded-xl bg-amber-400 px-8 py-4 font-bold text-zinc-900 transition hover:bg-amber-300"
+        className="mt-10 border border-gold/40 px-10 py-4 font-display text-sm tracking-[0.2em] text-gold transition hover:bg-gold/10"
       >
-        샘플 리포트 보기 →
+        샘플 리포트 열람
       </Link>
-      <p className="text-xs text-white/40">현재 데모: 샘플 데이터로 STEP 1~3 미리보기</p>
     </main>
   );
 }

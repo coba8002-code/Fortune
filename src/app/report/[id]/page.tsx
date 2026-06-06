@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
 import { getReport } from "@/lib/report/store";
+import { getManual } from "@/lib/manual/store";
 import { CharacterCard } from "@/components/CharacterCard";
 import { ElementChart } from "@/components/ElementChart";
 import { SajuTable } from "@/components/SajuTable";
 import { SectionRenderer } from "@/components/SectionRenderer";
+import { ManualSection } from "@/components/ManualSection";
 import { ELEMENT_LABEL } from "@/lib/ui/element";
 
 export default async function ReportPage({
@@ -16,48 +18,70 @@ export default async function ReportPage({
   const report = await getReport(params.id);
   if (!report) notFound();
 
+  const manual = await getManual(params.id);
   const isPrint = searchParams.print === "1";
 
   return (
-    <main className="min-h-screen pb-24">
-      {/* STEP1 — 캐릭터 카드 히어로 */}
-      <div className="px-6 pt-12">
-        <CharacterCard card={report.card} subject={report.subject} />
+    <main className="min-h-screen pb-28">
+      {/* 표지 */}
+      <header className="mx-auto max-w-2xl px-8 pt-16 text-center">
+        <span className="label-caps">Destiny Report</span>
+        <h1 className="mt-4 font-display text-3xl font-bold tracking-tight text-ivory">운명 프로파일</h1>
+        <p className="mt-2 text-sm text-ivory/45">{report.subject.name}</p>
+        <div className="hairline mx-auto mt-8 max-w-[3rem]" />
+      </header>
 
+      {/* STEP1 — 캐릭터 카드 */}
+      <div className="px-8 pt-10">
+        <CharacterCard card={report.card} subject={report.subject} />
         {!isPrint && (
-          <p className="no-print mt-6 text-center text-sm text-white/40">
-            아래로 스크롤해 전체 리포트를 확인하세요 ↓
+          <p className="no-print mt-8 text-center font-display text-xs tracking-[0.3em] text-ivory/30">
+            SCROLL
           </p>
         )}
       </div>
 
-      {/* 사주 원국 + 오행 차트 */}
-      <section className="print-page-break mx-auto mt-12 max-w-2xl px-6">
-        <h2 className="mb-4 text-xl font-bold">사주 원국 · 오행 분포</h2>
-        <SajuTable saju={report.saju} />
-        <div className="mt-6 flex flex-col items-center gap-3">
+      {/* 사주 원국 + 오행 */}
+      <section className="print-page-break mx-auto mt-16 max-w-2xl px-8">
+        <div className="text-center">
+          <span className="label-caps">命式 · 五行</span>
+          <h2 className="mt-3 font-display text-2xl font-bold text-ivory">사주 원국 · 오행 분포</h2>
+          <div className="hairline mx-auto mt-5 max-w-xs" />
+        </div>
+        <div className="mt-8">
+          <SajuTable saju={report.saju} />
+        </div>
+        <div className="mt-10 flex flex-col items-center gap-4">
           <ElementChart profile={report.elements} />
-          <p className="text-sm text-white/60">
-            주된 기운 <strong>{ELEMENT_LABEL[report.elements.dominant]}</strong>
-            {" · "}
-            보완할 기운 <strong>{ELEMENT_LABEL[report.elements.lacking]}</strong>
+          <p className="text-sm text-ivory/55">
+            주된 기운 <span className="font-display text-ivory/90">{ELEMENT_LABEL[report.elements.dominant]}</span>
+            <span className="mx-3 text-gold/40">·</span>
+            보완할 기운 <span className="font-display text-ivory/90">{ELEMENT_LABEL[report.elements.lacking]}</span>
           </p>
         </div>
       </section>
 
-      {/* STEP2 — 스크롤 리포트 본문 */}
-      {report.sections.map((section) => (
-        <SectionRenderer key={section.key} section={section} />
+      {/* STEP2 — 본문 섹션 */}
+      {report.sections.map((section, i) => (
+        <SectionRenderer key={section.key} section={section} index={i + 1} />
       ))}
 
-      {/* STEP3 — PDF 다운로드 (인쇄 화면에서는 숨김) */}
+      {/* 하단 — 취급설명서 병합 */}
+      {manual && (
+        <>
+          <div className="hairline mx-auto my-4 max-w-2xl" />
+          <ManualSection manual={manual} />
+        </>
+      )}
+
+      {/* PDF 다운로드 */}
       {!isPrint && (
-        <div className="no-print mx-auto mt-8 max-w-2xl px-6">
+        <div className="no-print mx-auto mt-10 max-w-2xl px-8">
           <a
             href={`/api/reports/${report.id}/pdf`}
-            className="block rounded-xl bg-amber-400 py-4 text-center font-bold text-zinc-900 transition hover:bg-amber-300"
+            className="block border border-gold/40 py-4 text-center font-display text-sm tracking-[0.2em] text-gold transition hover:bg-gold/10"
           >
-            PDF로 내려받기 · {report.subject.name}_운명리포트.pdf
+            PDF 소장본 내려받기
           </a>
         </div>
       )}

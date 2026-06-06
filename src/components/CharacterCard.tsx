@@ -1,5 +1,5 @@
 import type { CharacterCard as Card, Subject } from "@/types/report";
-import { ELEMENT_COLOR, ELEMENT_LABEL, RANK_COLOR, stars } from "@/lib/ui/element";
+import { ELEMENT_COLOR, ELEMENT_HANJA, GOLD, meterFill } from "@/lib/ui/element";
 
 const STAT_LABEL: Record<keyof Card["stats"], string> = {
   insight: "통찰",
@@ -10,78 +10,74 @@ const STAT_LABEL: Record<keyof Card["stats"], string> = {
 };
 
 /**
- * STEP1 — SSR 캐릭터 카드.
- * 리포트 최상단 히어로. 포켓몬 카드 감성으로 가장 먼저 뜨고, 공유를 유발한다.
+ * STEP1 — 캐릭터 프로파일 플레이트.
+ * 이모지 없이 금박 헤어라인·명조 타이틀·한자 각인으로 격조 있게.
  */
 export function CharacterCard({ card, subject }: { card: Card; subject: Subject }) {
   const accent = ELEMENT_COLOR[card.mainElement];
-  const rankColor = RANK_COLOR[card.rank];
 
   return (
     <div
-      className="relative mx-auto w-full max-w-sm overflow-hidden rounded-2xl border p-6"
-      style={{
-        borderColor: rankColor,
-        background:
-          "radial-gradient(120% 120% at 50% 0%, rgba(255,255,255,0.08), rgba(255,255,255,0) 60%), #161922",
-        boxShadow: `0 0 40px ${rankColor}33`,
-      }}
+      className="relative mx-auto w-full max-w-md overflow-hidden rounded-sm border border-gold/30 bg-surface"
+      style={{ boxShadow: "0 30px 80px -40px rgba(0,0,0,0.8)" }}
     >
-      {/* 등급 + 레벨 */}
-      <div className="flex items-center justify-between">
-        <span
-          className="rounded-md px-2 py-0.5 text-sm font-black tracking-wider"
-          style={{ background: rankColor, color: "#161922" }}
-        >
-          {card.rank}
-        </span>
-        <span className="text-sm text-white/60">Lv.{card.level}</span>
+      {/* 한자 워터마크 */}
+      <div
+        className="pointer-events-none absolute -right-6 -top-10 select-none font-display text-[12rem] leading-none text-white/[0.03]"
+        aria-hidden
+      >
+        {ELEMENT_HANJA[card.mainElement]}
       </div>
 
-      {/* 타이틀 */}
-      <h1 className="mt-3 text-3xl font-black" style={{ color: accent }}>
-        {card.title}
-      </h1>
-      <p className="mt-1 text-sm text-white/70">
-        {subject.name} 님의 운명 프로파일
-      </p>
+      <div className="relative px-8 pt-8 pb-7">
+        {/* 등급 / 레벨 */}
+        <div className="flex items-center justify-between">
+          <span className="label-caps">Grade {card.rank}</span>
+          <span className="font-display text-sm text-ivory/50">No. {String(card.level).padStart(2, "0")}</span>
+        </div>
 
-      {/* 속성 / 직업 */}
-      <div className="mt-4 flex gap-2 text-xs">
-        <span
-          className="rounded-full px-3 py-1 font-semibold"
-          style={{ background: `${accent}22`, color: accent }}
-        >
-          주속성 · {ELEMENT_LABEL[card.mainElement]}
-        </span>
-        <span className="rounded-full bg-white/10 px-3 py-1 font-semibold text-white/80">
-          직업 · {card.job}
-        </span>
-      </div>
+        {/* 타이틀 */}
+        <h1 className="mt-5 font-display text-4xl font-bold tracking-tight text-ivory">
+          {card.title}
+        </h1>
+        <p className="mt-2 text-sm text-ivory/45">{subject.name} · 운명 프로파일</p>
 
-      {/* 능력치 */}
-      <div className="mt-5 space-y-2">
-        {(Object.keys(card.stats) as (keyof Card["stats"])[]).map((k) => (
-          <div key={k} className="flex items-center gap-3">
-            <span className="w-10 shrink-0 text-xs text-white/60">{STAT_LABEL[k]}</span>
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${card.stats[k]}%`, background: accent }}
-              />
+        {/* 속성 / 직업 */}
+        <div className="mt-5 flex items-center gap-5 text-sm">
+          <span style={{ color: accent }} className="font-display">
+            主氣 {ELEMENT_HANJA[card.mainElement]} · {card.mainElement}
+          </span>
+          <span className="h-3 w-px bg-gold/25" />
+          <span className="text-ivory/60">{card.job}</span>
+        </div>
+
+        <div className="hairline my-6" />
+
+        {/* 능력치 */}
+        <div className="space-y-3">
+          {(Object.keys(card.stats) as (keyof Card["stats"])[]).map((k) => (
+            <div key={k} className="flex items-center gap-4">
+              <span className="w-9 shrink-0 font-display text-xs tracking-wider text-ivory/55">
+                {STAT_LABEL[k]}
+              </span>
+              <div className="h-px flex-1 bg-white/10">
+                <div className="h-px" style={{ width: `${card.stats[k]}%`, background: accent }} />
+              </div>
+              <span className="w-7 shrink-0 text-right font-display text-xs text-ivory/40">
+                {card.stats[k]}
+              </span>
             </div>
-            <span className="w-7 shrink-0 text-right text-xs text-white/50">
-              {card.stats[k]}
-            </span>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* 스킬 */}
-      <div className="mt-5 space-y-2 border-t border-white/10 pt-4 text-sm">
-        <SkillRow label="메인" name={card.skills.main.name} stars={card.skills.main.stars} />
-        <SkillRow label="패시브" name={card.skills.passive.name} stars={card.skills.passive.stars} />
-        <SkillRow label="약점" name={card.skills.weakness.name} stars={card.skills.weakness.stars} muted />
+        <div className="hairline my-6" />
+
+        {/* 스킬 */}
+        <div className="space-y-3 text-sm">
+          <SkillRow label="主技" name={card.skills.main.name} stars={card.skills.main.stars} />
+          <SkillRow label="潛技" name={card.skills.passive.name} stars={card.skills.passive.stars} />
+          <SkillRow label="弱點" name={card.skills.weakness.name} stars={card.skills.weakness.stars} muted />
+        </div>
       </div>
     </div>
   );
@@ -90,7 +86,7 @@ export function CharacterCard({ card, subject }: { card: Card; subject: Subject 
 function SkillRow({
   label,
   name,
-  stars: n,
+  stars,
   muted,
 }: {
   label: string;
@@ -99,11 +95,17 @@ function SkillRow({
   muted?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-white/50">{label}</span>
-      <span className={muted ? "text-white/70" : "text-white"}>{name}</span>
-      <span className="font-mono text-xs" style={{ color: muted ? "#9AA0A6" : "#F4C95D" }}>
-        {stars(n)}
+    <div className="flex items-center justify-between gap-4">
+      <span className="font-display text-xs text-gold/70">{label}</span>
+      <span className={`flex-1 ${muted ? "text-ivory/55" : "text-ivory/90"}`}>{name}</span>
+      <span className="flex items-center gap-1">
+        {meterFill(stars).map((on, i) => (
+          <span
+            key={i}
+            className="h-1 w-3"
+            style={{ background: on ? (muted ? "rgba(236,230,216,0.4)" : GOLD) : "rgba(255,255,255,0.1)" }}
+          />
+        ))}
       </span>
     </div>
   );
