@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>궁합 리포트 · {{nameA}} × {{nameB}}</title>
+<!--
+  궁합 리포트 템플릿 (Compatibility Report)
+  ─ 데이터 매핑 가이드 (CompatibilityReport)
+    meta:    reportId, createdAt
+    A / B:   { name, title, rank, mainElement(목화토금수), dayMaster, elements.scores }
+    score:   total(0~100), grade(SSR~N), breakdown{attraction,comm,stability,growth,friction}
+    basis:   dayMasterRelation, branch(합/충/형/해), elementComplement, yongsin
+    sections[]: { key, title, summary, body[](paragraph/list/callout/gauge) }
+    manual.items[]: { label, text }, manual.warning
+  ※ 화면 표기는 이모지 미사용(번호·스몰캡스·한자 각인).
+-->
+<style>
+  :root{
+    --ink:#0c0b09;--surface:#16140f;--ivory:#ece6d8;--muted:rgba(236,230,216,.55);
+    --gold:#c4a35a;--gb:#e8cf93;--hair:rgba(196,163,90,.22);
+    --A:#c2a36b; /* 인물 A 주속성색(토) */ --B:#6e8ba6; /* 인물 B 주속성색(수) */
+    --serif:"Nanum Myeongjo","Noto Serif KR",Georgia,serif;
+    --sans:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--ink);color:var(--ivory);font-family:var(--sans);line-height:1.6;
+    background-image:radial-gradient(120% 60% at 50% 0%,rgba(196,163,90,.07),transparent 60%);padding-bottom:90px}
+  .wrap{max-width:680px;margin:0 auto;padding:0 22px}
+  .font-d{font-family:var(--serif)}
+  .caps{font-family:var(--serif);text-transform:uppercase;letter-spacing:.28em;font-size:10px;color:var(--gold)}
+  .hr{height:1px;background:linear-gradient(90deg,transparent,var(--hair),transparent);margin:14px 0}
+  h2{font-family:var(--serif);font-weight:700;font-size:22px;margin-top:4px}
+  section{padding:46px 0;border-top:1px solid rgba(255,255,255,.05)}
+
+  /* 표지 */
+  .cover{text-align:center;padding-top:64px}
+  .cover h1{font-family:var(--serif);font-weight:700;font-size:30px;margin-top:14px}
+  .cover .who{margin-top:10px;color:var(--muted);font-family:var(--serif)}
+
+  /* 히어로: 두 미니카드 + 合 + 점수 */
+  .hero{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:30px}
+  .mini{flex:1;max-width:180px;border:1px solid var(--hair);border-radius:6px;background:var(--surface);padding:18px 14px;text-align:center}
+  .ava{width:54px;height:54px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;font-family:var(--serif);font-size:22px;
+    border:1px solid rgba(232,207,147,.5)}
+  .mini .nm{font-family:var(--serif);font-size:13px;color:var(--muted)}
+  .mini .tt{font-family:var(--serif);font-weight:700;font-size:19px;margin-top:2px}
+  .mini .el{font-family:var(--serif);font-size:11px;margin-top:6px}
+  .link{width:78px;text-align:center;flex:0 0 auto}
+  .link .he{font-family:var(--serif);font-size:30px;color:var(--gold)}
+  .link .sc{font-family:var(--serif);font-weight:700;font-size:34px;margin-top:4px}
+  .link .gr{font-family:var(--serif);letter-spacing:.2em;font-size:11px;color:var(--gb);border-top:1px solid var(--hair);margin-top:6px;padding-top:6px}
+  .tagline{text-align:center;color:var(--muted);margin-top:18px;font-family:var(--serif)}
+
+  /* 레이더 (2인 겹쳐보기) */
+  .radarwrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .legend{display:flex;gap:18px;font-size:12px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+  /* 점수 분해 게이지 */
+  .gauge{display:flex;align-items:center;gap:12px;margin:9px 0;font-size:13px}
+  .gauge b{width:60px;font-family:var(--serif);font-weight:400;color:var(--muted)}
+  .track{flex:1;height:2px;background:rgba(255,255,255,.12)}
+  .track i{display:block;height:2px;background:var(--gold)}
+  .gauge span{width:28px;text-align:right;font-family:var(--serif);color:var(--muted)}
+
+  /* 관계 근거 리스트 */
+  .basis{display:grid;grid-template-columns:1fr;gap:0}
+  .basis .row{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+  .basis .k{width:96px;flex:0 0 auto;font-family:var(--serif);color:var(--gb);font-size:13px}
+  .basis .v{color:rgba(236,230,216,.85);font-size:14px}
+
+  /* 본문 섹션 */
+  .num{font-family:var(--serif);color:var(--gold);font-size:13px}
+  .summary{color:var(--muted);margin-top:6px}
+  p.body{margin-top:14px;color:rgba(236,230,216,.82);line-height:1.85}
+  ul.list{margin-top:14px;list-style:none}
+  ul.list li{display:flex;gap:12px;color:rgba(236,230,216,.82);margin:7px 0}
+  ul.list li::before{content:"";margin-top:12px;width:14px;height:1px;background:var(--gold);flex:0 0 auto}
+  .callout{margin-top:16px;border-left:1px solid;padding-left:18px}
+  .callout .ct{font-family:var(--serif);text-transform:uppercase;letter-spacing:.25em;font-size:11px}
+  .callout p{margin-top:6px;color:rgba(236,230,216,.82)}
+
+  /* 관계 취급설명서 */
+  .manual .item{display:flex;gap:18px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .manual .mn{font-family:var(--serif);color:var(--gb);font-size:13px;width:18px;flex:0 0 auto}
+  .manual .ml{font-family:var(--serif);font-size:15px}
+  .manual .mt{margin-top:4px;color:rgba(236,230,216,.68);font-size:14px}
+  .warn{margin-top:18px;border-top:1px solid var(--gold);padding-top:14px}
+  .warn .ct{font-family:var(--serif);text-transform:uppercase;letter-spacing:.25em;font-size:11px;color:var(--gold)}
+
+  .foot{text-align:center;color:rgba(236,230,216,.4);font-size:12px;margin-top:40px;line-height:1.8}
+  .cta{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+  .btn{border:1px solid rgba(196,163,90,.4);color:var(--gold);font-family:var(--serif);letter-spacing:.15em;font-size:12px;padding:12px 20px;text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- ── 표지 ── -->
+<div class="wrap cover">
+  <span class="caps">Compatibility Report · 궁합</span>
+  <h1>두 사람의 결</h1>
+  <div class="who">최준혁 <span style="color:var(--gold)">×</span> 이서연</div>
+  <div class="hr" style="max-width:60px;margin:24px auto"></div>
+</div>
+
+<!-- ── 히어로: 두 미니카드 + 合 + 점수 ── -->
+<div class="wrap">
+  <div class="hero">
+    <div class="mini">
+      <div class="ava" style="color:var(--A);background:radial-gradient(circle at 50% 35%,rgba(194,163,107,.25),transparent 70%)">土</div>
+      <div class="nm">최준혁</div><div class="tt" style="color:var(--A)">장인</div>
+      <div class="el" style="color:var(--A)">主氣 土 · 토</div>
+    </div>
+    <div class="link">
+      <div class="he">合</div>
+      <div class="sc">92</div>
+      <div class="gr">SSR 케미</div>
+    </div>
+    <div class="mini">
+      <div class="ava" style="color:var(--B);background:radial-gradient(circle at 50% 35%,rgba(110,139,166,.25),transparent 70%)">水</div>
+      <div class="nm">이서연</div><div class="tt" style="color:var(--B)">탐색가</div>
+      <div class="el" style="color:var(--B)">主氣 水 · 수</div>
+    </div>
+  </div>
+  <p class="tagline">메마른 흙을 적시는 물 — 끌리고, 채워주는 사이.</p>
+</div>
+
+<!-- ── 오행 겹쳐보기 + 점수 분해 ── -->
+<section class="wrap">
+  <span class="caps">五行 · Dynamics</span>
+  <h2>오행 케미 & 점수 분해</h2>
+  <div class="hr"></div>
+  <div class="radarwrap">
+    <!-- 두 오행 프로파일 겹친 레이더 (A=토색, B=수색) -->
+    <svg viewBox="0 0 260 260" width="260" height="260" aria-label="오행 겹쳐보기">
+      <g fill="none" stroke="rgba(196,163,90,.14)" stroke-width="1">
+        <polygon points="130,40 215,101 182,201 78,201 45,101"/>
+        <polygon points="130,70 188,114 165,182 95,182 72,114"/>
+      </g>
+      <!-- A: 토 3 / 금 3 / 화1 수1 목0  (점수→반지름은 빌드시 계산) -->
+      <polygon points="130,92 175,118 165,170 95,170 90,118" fill="rgba(194,163,107,.16)" stroke="#c2a36b" stroke-width="1.5"/>
+      <!-- B: 수3 목2 화1 토1 금1 -->
+      <polygon points="130,58 150,120 150,178 70,150 100,108" fill="rgba(110,139,166,.16)" stroke="#6e8ba6" stroke-width="1.5"/>
+      <g font-family="var(--serif)" font-size="11" fill="var(--muted)" text-anchor="middle">
+        <text x="130" y="30">화 火</text><text x="232" y="101">토 土</text>
+        <text x="196" y="222">금 金</text><text x="64" y="222">수 水</text><text x="28" y="101">목 木</text>
+      </g>
+    </svg>
+    <div class="legend"><span><i style="background:var(--A)"></i>최준혁</span><span><i style="background:var(--B)"></i>이서연</span></div>
+  </div>
+
+  <div class="hr"></div>
+  <!-- 점수 분해: 끌림/소통/안정/성장/마찰 -->
+  <div class="gauge"><b>끌림</b><div class="track"><i style="width:88%"></i></div><span>88</span></div>
+  <div class="gauge"><b>소통</b><div class="track"><i style="width:76%"></i></div><span>76</span></div>
+  <div class="gauge"><b>안정</b><div class="track"><i style="width:90%"></i></div><span>90</span></div>
+  <div class="gauge"><b>성장</b><div class="track"><i style="width:84%"></i></div><span>84</span></div>
+  <div class="gauge"><b>마찰</b><div class="track"><i style="width:35%"></i></div><span>35</span></div>
+</section>
+
+<!-- ── 관계 근거 (사주) ── -->
+<section class="wrap">
+  <span class="caps">命理 · Why</span>
+  <h2>이 점수의 근거</h2>
+  <div class="hr"></div>
+  <div class="basis">
+    <div class="row"><div class="k">일간 관계</div><div class="v">己土 ↔ 癸水 — 재성(財星)의 인연. 서로를 ‘소유하고 싶은’ 끌림이 강합니다.</div></div>
+    <div class="row"><div class="k">지지 합·충</div><div class="v">합(合) 2 · 충(沖) 1 — 안정적 끌림 위에 적당한 긴장이 더해진 역동.</div></div>
+    <div class="row"><div class="k">오행 보완</div><div class="v">그가 부족한 목·수를 그녀가 채우고, 그녀의 흙기운을 그가 받쳐줌 — 상생 구조.</div></div>
+    <div class="row"><div class="k">용신 충족</div><div class="v">차가운 흙에 온기·수분을 더하는 궁합 — 서로의 결핍을 메웁니다.</div></div>
+  </div>
+</section>
+
+<!-- ── 본문 섹션 (반복) ── -->
+<section class="wrap">
+  <span class="num">01</span><h2>첫 끌림</h2>
+  <p class="summary">조용한 흙이 흐르는 물에 먼저 마음을 엽니다.</p>
+  <p class="body">서로 다른 결이 끌림의 핵심입니다. 신중하고 단단한 그가, 유연하고 호기심 많은 그녀에게서 ‘나에게 없는 것’을 봅니다. 재성의 인연이라 끌림은 빠르고 분명하지만, 그가 먼저 표현하기까지는 시간이 필요합니다.</p>
+  <ul class="list">
+    <li>그에게 끌리는 점: 흔들리지 않는 안정감과 책임감</li>
+    <li>그녀에게 끌리는 점: 새로움을 여는 가벼움과 표현력</li>
+  </ul>
+  <div class="callout" style="border-color:var(--gold)"><div class="ct" style="color:var(--gold)">핵심</div><p>먼저 다가가는 쪽은 그녀, 오래 붙잡는 쪽은 그입니다.</p></div>
+</section>
+
+<section class="wrap">
+  <span class="num">02</span><h2>소통 · 성향</h2>
+  <p class="summary">속도 차이를 인정하면 최고의 대화가 됩니다.</p>
+  <p class="body">그는 결론까지 천천히, 그녀는 떠오르는 대로 빠르게 말합니다. 이 속도차가 갈등의 씨앗이자 보완점입니다. 그가 한 박자 빨리 반응해 주고, 그녀가 결론을 재촉하지 않으면 대화가 깊어집니다.</p>
+  <div class="callout" style="border-color:#7C9A74"><div class="ct" style="color:#7C9A74">조언</div><p>그의 침묵은 거절이 아니라 ‘생각 중’이라는 신호입니다.</p></div>
+</section>
+
+<section class="wrap">
+  <span class="num">03</span><h2>애정 표현</h2>
+  <p class="summary">말의 사랑과 행동의 사랑이 만납니다.</p>
+  <p class="body">그녀는 말과 스킨십으로, 그는 챙김과 묵묵한 헌신으로 사랑합니다. 표현 방식이 달라 ‘덜 사랑받는다’는 오해가 생길 수 있으니, 서로의 언어를 번역해 주는 노력이 필요합니다.</p>
+  <ul class="list">
+    <li>그가 노력할 점: 마음을 ‘말로’ 한 번 더</li>
+    <li>그녀가 이해할 점: 그의 행동이 곧 고백</li>
+  </ul>
+</section>
+
+<section class="wrap">
+  <span class="num">04</span><h2>가치관 · 돈</h2>
+  <p class="summary">현실 감각이 잘 맞는, 안정적인 살림 궁합.</p>
+  <p class="body">누적형인 그와 흐름을 읽는 그녀가 만나 ‘벌고 굴리는’ 역할이 자연스럽게 나뉩니다. 다만 그의 정(情) 지출과 그녀의 호기심 지출을 서로 점검해 주면 좋습니다.</p>
+  <div class="gauge" style="margin-top:8px"><b>재정 합</b><div class="track"><i style="width:82%"></i></div><span>82</span></div>
+</section>
+
+<section class="wrap">
+  <span class="num">05</span><h2>갈등 포인트</h2>
+  <p class="summary">고집과 변덕이 부딪히는 지점을 미리 알면 안전합니다.</p>
+  <p class="body">그의 ‘내 방식이 맞다’와 그녀의 ‘즉흥적 변화’가 충돌할 수 있습니다. 충(沖)이 자극을 주지만, 반복되면 피로가 됩니다. 결정 전 ‘한 박자 듣기’와 ‘변화 예고하기’가 처방입니다.</p>
+  <div class="callout" style="border-color:#C2705A"><div class="ct" style="color:#C2705A">주의</div><p>그의 침묵 + 그녀의 재촉이 겹치는 순간이 최대 위험 구간입니다.</p></div>
+</section>
+
+<section class="wrap">
+  <span class="num">06</span><h2>장기 전망</h2>
+  <p class="summary">시간이 지날수록 단단해지는 관계.</p>
+  <p class="body">초반의 속도차만 넘기면, 서로의 결핍을 메우는 구조라 오래갈수록 안정됩니다. 함께 ‘새로운 것을 시작’하는 경험이 관계의 활력을 유지시킵니다.</p>
+</section>
+
+<!-- ── 관계 취급설명서 ── -->
+<section class="wrap manual">
+  <span class="caps">Relationship Manual</span>
+  <h2>두 사람 취급설명서</h2>
+  <div class="hr"></div>
+  <div class="item"><span class="mn">01</span><div><div class="ml">함께 충전하는 법</div><div class="mt">시끌벅적한 약속보다, 조용한 곳에서 같이 무언가를 ‘만드는’ 데이트가 둘 다 충전됩니다.</div></div></div>
+  <div class="item"><span class="mn">02</span><div><div class="ml">피해야 할 지뢰</div><div class="mt">그에게 ‘네 방식 틀렸어’, 그녀에게 ‘넌 왜 매번 즉흥적이야’ — 이 두 마디가 가장 큰 폭발 버튼.</div></div></div>
+  <div class="item"><span class="mn">03</span><div><div class="ml">화해 프로토콜</div><div class="mt">그녀는 말로 풀고, 그는 시간이 필요. 식힐 시간을 준 뒤 행동으로 ‘네 편’임을 보여주면 회복.</div></div></div>
+  <div class="item"><span class="mn">04</span><div><div class="ml">오래 가는 비결</div><div class="mt">속도차를 ‘문제’가 아니라 ‘역할 분담’으로 받아들이기. 그는 표현을, 그녀는 인내를 한 뼘씩.</div></div></div>
+  <div class="warn"><div class="ct">관계 취급주의</div><p>이 궁합의 강점(서로 다름)은 곧 약점입니다. 다름을 ‘틀림’으로 읽는 순간 마찰이 커집니다 — 다름을 자원으로 보세요.</p></div>
+</section>
+
+<!-- ── 푸터 ── -->
+<div class="wrap">
+  <div class="cta">
+    <a class="btn" href="#">PDF 소장본</a>
+    <a class="btn" href="#">궁합 카드 공유</a>
+  </div>
+  <p class="foot">myfortune.ai · 사주 × 심리 궁합 리포트<br/>본 리포트는 자기이해와 재미를 위한 콘텐츠입니다.</p>
+</div>
+
+</body>
+</html>
