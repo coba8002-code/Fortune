@@ -19,6 +19,7 @@
  */
 import { mkdir, writeFile, access } from "node:fs/promises";
 import { dirname, join } from "node:path";
+import { PNG } from "pngjs";
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 const MODEL = process.env.GEMINI_IMAGE_MODEL ?? "gemini-2.5-flash-image";
@@ -35,23 +36,29 @@ const STYLE = {
   clay3d:
     "soft 3D clay-render illustration, smooth matte clay material, gentle studio lighting, soft ambient occlusion, rounded friendly shapes, high detail, octane render look",
   pastel:
-    "pastel color palette (lavender, peach, mint, soft pink, cream), warm and cozy mood",
-  noText: "no text, no letters, no watermark, no logo",
+    "clear saturated pastel colors (lavender, peach, mint, soft pink), vivid but soft, avoid washed-out near-white surfaces, matte non-reflective clay to avoid color spill, warm and cozy mood",
+  noText: "absolutely no text, no letters, no numbers, no color codes, no labels, no watermark, no logo anywhere in the image",
 };
 
-/** 투명 배경 PNG 를 요청하는 지시문. */
-const TRANSPARENT = "isolated subject on a fully transparent background (alpha channel), PNG with transparency, no shadow on ground";
+/**
+ * 투명 배경용 지시문.
+ * Gemini 는 "transparent background" 를 요청하면 실제 알파 대신 체크무늬 패턴을
+ * 그려 넣는 경향이 있어, 단색 크로마키(녹색) 배경으로 생성한 뒤 후처리로 투명화한다.
+ */
+const CHROMA_RGB = { r: 0, g: 177, b: 64 }; // 크로마키 그린
+const TRANSPARENT = `isolated subject centered, placed on a completely solid flat chroma-key green background, fill the entire background edge to edge with pure uniform green color RGB(0,177,64), absolutely no checkerboard, no pattern, no gradient, no vignette, no drop shadow on the ground`;
 
 /**
  * 생성 대상 정의.
  * group: 그룹 필터용 키 / file: public/brand 기준 상대경로 / prompt: 생성 프롬프트
  */
 const ASSETS = [
-  // 1) 히어로 3D 클레이 마녀 캐릭터 (투명배경)
+  // 1) 히어로 — 실사 느낌의 우아한 한복 여성 (소프트 파스텔 배경, 프레임용)
   {
     group: "hero",
     file: "char-hero.png",
-    prompt: `Adorable chibi witch girl mascot character for a Korean fortune-telling (사주/운세) brand. ${STYLE.clay3d}. She wears a cute pointed witch hat with a tiny crescent moon and stars, a flowing pastel robe, and holds a glowing crystal ball. Big friendly eyes, gentle smile, mystical sparkles around her. ${STYLE.pastel}. Centered full-body, front three-quarter view. ${TRANSPARENT}. ${STYLE.noText}.`,
+    transparent: false,
+    prompt: `Photorealistic editorial portrait of an elegant young Korean woman in her late twenties wearing a refined soft pastel hanbok (lavender and peach tones), serene gentle smile, calm and trustworthy gaze toward the viewer, mystical and warm atmosphere. Subtle celestial accents float softly around her: a delicate crescent moon, faint stars and gentle light bokeh. Smooth soft cinematic studio lighting, shallow depth of field, dreamy soft pastel lavender-to-peach gradient background, professional fashion photography, ultra detailed skin and fabric, natural beautiful face, head-and-shoulders to waist composition, centered. ${STYLE.noText}.`,
   },
 
   // 2) 이벤트 배너 배경 3종 (와이드, 배경 위주)
@@ -73,18 +80,19 @@ const ASSETS = [
 
   // 3) 메뉴 아이콘 9종 (파스텔 3D 일러스트, 투명배경)
   ...[
-    ["saju", "a four-pillars (사주) destiny chart with Chinese-style heavenly stem & earthly branch blocks and a glowing yin-yang"],
-    ["unse", "a flowing fortune (운세) wave with a shooting star and crescent moon"],
-    ["gunghap", "two interlocking hearts joined by a red string of fate (궁합 compatibility)"],
-    ["couple", "a cute couple silhouette under a heart, romantic relationship (연애)"],
-    ["health", "a glowing heartbeat pulse with a healing leaf and shield (건강 health)"],
-    ["admission", "a graduation cap with a sprouting pencil and rising arrow (입시/합격 admission)"],
-    ["strategy", "a chess knight piece with a target and compass (전략 strategy)"],
-    ["family", "a cozy house with a parent-and-child family group (가족 family)"],
-    ["child", "a baby star with a pacifier and tiny crescent moon (자녀 child)"],
+    ["saju", "a glowing yin-yang orb above four stacked rounded clay pillar blocks"],
+    ["unse", "a single shooting star with a sparkling trail curving over a soft crescent moon"],
+    ["gunghap", "two rounded clay hearts gently linked by one delicate red string"],
+    ["couple", "a cute couple of two rounded clay figures standing close under a floating heart"],
+    ["health", "a rounded shield with a glowing heartbeat pulse line and a small healing leaf"],
+    ["admission", "a graduation cap with a sprouting pencil and a rising arrow"],
+    ["strategy", "a chess knight piece beside a small target and a compass"],
+    ["family", "a cozy rounded house with a small parent-and-child figure group in front"],
+    ["child", "a smiling baby star with a tiny pacifier and a small crescent moon"],
   ].map(([name, subject]) => ({
     group: "menu",
     file: `menu/${name}.png`,
+    transparent: true,
     prompt: `App menu icon: ${subject}. ${STYLE.clay3d}. Single centered icon, simple and readable at small size, soft rounded silhouette. ${STYLE.pastel}. ${TRANSPARENT}. ${STYLE.noText}.`,
   })),
 ];
@@ -126,6 +134,77 @@ async function generateImage(prompt, { retries = 4 } = {}) {
   }
 }
 
+/** 테두리 링에서 배경색(크로마키 녹색)의 중앙값을 추정. Gemini 가 칠한 녹색 톤은
+ *  순수 RGB(0,177,64) 가 아니라 톤이 제각각이라, 고정값 대신 실제 색을 샘플링한다. */
+function sampleBackground(data, width, height, border = 4) {
+  const rs = [], gs = [], bs = [];
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (x < border || x >= width - border || y < border || y >= height - border) {
+        const i = (y * width + x) * 4;
+        rs.push(data[i]); gs.push(data[i + 1]); bs.push(data[i + 2]);
+      }
+    }
+  }
+  const med = (a) => { a.sort((p, q) => p - q); return a[a.length >> 1]; };
+  return [med(rs), med(gs), med(bs)];
+}
+
+/** 면적이 minAreaFrac 미만인 작은 불투명 덩어리(예: 환각으로 그려진 텍스트)를 제거.
+ *  실제 아이콘 요소(통통한 3D 클레이 형태)는 충분히 커서 보존된다. */
+function removeSpeckles(out, width, height, minAreaFrac = 0.003) {
+  const N = width * height;
+  const minArea = Math.floor(N * minAreaFrac);
+  const solid = (p) => out.data[p * 4 + 3] >= 128;
+  const seen = new Uint8Array(N);
+  const stack = new Int32Array(N);
+  for (let s = 0; s < N; s++) {
+    if (seen[s] || !solid(s)) continue;
+    let sp = 0, count = 0;
+    stack[sp++] = s; seen[s] = 1;
+    const comp = [];
+    while (sp) {
+      const p = stack[--sp];
+      comp.push(p); count++;
+      const x = p % width, y = (p / width) | 0;
+      const nb = [];
+      if (x > 0) nb.push(p - 1);
+      if (x < width - 1) nb.push(p + 1);
+      if (y > 0) nb.push(p - width);
+      if (y < height - 1) nb.push(p + width);
+      for (const q of nb) if (!seen[q] && solid(q)) { seen[q] = 1; stack[sp++] = q; }
+    }
+    if (count < minArea) for (const p of comp) out.data[p * 4 + 3] = 0; // 잡티 제거
+  }
+}
+
+/**
+ * 단색 크로마키(녹색) 배경을 알파(투명)로 변환한다.
+ * - 배경색을 테두리에서 자동 샘플링한 뒤, 각 픽셀의 RGB 거리로 키잉.
+ * - lowD 이하는 투명, highD 이상은 불투명, 사이는 선형 알파(가장자리 페더링).
+ * - 부분 투명 픽셀은 디스필(녹색 성분을 R/B 수준으로 낮춤)로 녹색 테두리를 제거.
+ * - 마지막으로 작은 잡티(환각 텍스트 등) 제거.
+ */
+function chromaKeyToAlpha(pngBuffer, { lowD = 72, highD = 110 } = {}) {
+  const img = PNG.sync.read(pngBuffer);
+  const { data, width, height } = img;
+  const bg = sampleBackground(data, width, height);
+  const out = new PNG({ width, height });
+  for (let i = 0; i < data.length; i += 4) {
+    let r = data[i], g = data[i + 1], b = data[i + 2];
+    const dr = r - bg[0], dg = g - bg[1], db = b - bg[2];
+    const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+    let alpha;
+    if (dist <= lowD) alpha = 0;
+    else if (dist >= highD) alpha = 255;
+    else alpha = Math.round(((dist - lowD) / (highD - lowD)) * 255);
+    if (alpha < 255 && g > Math.max(r, b)) g = Math.max(r, b); // 디스필
+    out.data[i] = r; out.data[i + 1] = g; out.data[i + 2] = b; out.data[i + 3] = alpha;
+  }
+  removeSpeckles(out, width, height);
+  return PNG.sync.write(out);
+}
+
 async function exists(p) {
   try {
     await access(p);
@@ -136,10 +215,14 @@ async function exists(p) {
 }
 
 async function main() {
-  const filter = process.argv[2]; // hero|events|menu (선택)
-  const targets = filter ? ASSETS.filter((a) => a.group === filter) : ASSETS;
+  // 인자: 그룹명(hero|events|menu) 또는 파일 경로(menu/gunghap.png, menu/gunghap)
+  const filter = process.argv[2];
+  const norm = (s) => s.replace(/\.png$/, "");
+  const targets = filter
+    ? ASSETS.filter((a) => a.group === filter || norm(a.file) === norm(filter))
+    : ASSETS;
   if (!targets.length) {
-    console.error(`[gen-assets] 그룹 "${filter}" 에 해당하는 에셋이 없습니다.`);
+    console.error(`[gen-assets] "${filter}" 에 해당하는 에셋이 없습니다. (그룹: hero|events|menu, 또는 파일경로)`);
     process.exit(1);
   }
 
@@ -153,10 +236,11 @@ async function main() {
       continue;
     }
     try {
-      const png = await generateImage(asset.prompt);
+      let png = await generateImage(asset.prompt);
+      if (asset.transparent) png = chromaKeyToAlpha(png); // 크로마키 → 투명 알파
       await mkdir(dirname(out), { recursive: true });
       await writeFile(out, png);
-      console.log(`[ok]   ${asset.file} (${(png.length / 1024).toFixed(0)} KB)`);
+      console.log(`[ok]   ${asset.file} (${(png.length / 1024).toFixed(0)} KB${asset.transparent ? ", 투명" : ""})`);
       ok++;
       await sleep(500); // 레이트리밋 완화
     } catch (e) {
