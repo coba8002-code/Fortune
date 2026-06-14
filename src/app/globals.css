@@ -64,70 +64,93 @@ body {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
 }
 
-/* ── 랜딩(베이지 럭셔리) 전용 테마 ────────────────────────────────────
-   .lp 하위에서만 적용 — 리포트(다크) 페이지에는 영향 없음. */
-.lp {
-  --b-cream: #fbf7f1;
-  --b-sand: #f2ebdf;
-  --b-beige: #e8dece;
-  --b-taupe: #cdbfa8;
-  --b-bronze: #a88b5c;
-  --b-coffee: #6b6051;
-  --b-ink: #3a3329;
-  --b-muted: #938875;
+/* ── 모바일 앱 디자인 전용 테마 ──────────────────────────────────────
+   .app 하위에서만 적용 — 리포트(다크) 페이지에는 영향 없음. */
+.app-stage {
   min-height: 100vh;
-  color: var(--b-ink);
+  background:
+    radial-gradient(120% 60% at 50% 0%, #efe7ff 0%, transparent 55%),
+    linear-gradient(180deg, #f3f0fb 0%, #f7f3f0 100%);
+  display: flex;
+  justify-content: center;
+}
+.app {
+  --a-bg: #f7f5fc;
+  --a-surface: #ffffff;
+  --a-ink: #2a2535;
+  --a-muted: #8e879d;
+  --a-line: rgba(110, 91, 214, 0.1);
+  --a-primary: #6e5bd6;
+  --a-primary2: #9b7ff0;
+  --a-peach: #f4a98a;
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  min-height: 100vh;
+  background: var(--a-bg);
+  color: var(--a-ink);
   font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
-  background: linear-gradient(180deg, #fbf7f1 0%, #f4ede1 48%, #efe7d8 100%);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  box-shadow: 0 0 60px -20px rgba(80, 60, 160, 0.25);
+  padding-bottom: 88px; /* 하단 탭바 여백 */
 }
-.lp ::selection { background: rgba(168, 139, 92, 0.22); }
-
-/* 명조 디스플레이 — 고급스러운 제목 */
-.lp-serif {
-  font-family: "Nanum Myeongjo", "Noto Serif KR", Georgia, serif;
-  letter-spacing: 0;
-}
-/* 라틴 소문자 라벨 */
-.lp-eyebrow {
-  font-family: "Nanum Myeongjo", "Noto Serif KR", Georgia, serif;
-  text-transform: uppercase;
-  letter-spacing: 0.32em;
-  font-size: 0.7rem;
-  color: var(--b-bronze);
-}
-.lp-hair { height: 1px; background: linear-gradient(90deg, transparent, var(--b-taupe), transparent); }
+.app ::selection { background: rgba(110, 91, 214, 0.18); }
+.app-serif { font-family: "Nanum Myeongjo", "Noto Serif KR", Georgia, serif; }
 
 /* 카드 */
-.lp-card {
-  background: var(--b-cream);
-  border: 1px solid rgba(205, 191, 168, 0.5);
+.app-card {
+  background: var(--a-surface);
+  border: 1px solid var(--a-line);
   border-radius: 1.5rem;
-  box-shadow: 0 12px 32px -18px rgba(120, 100, 70, 0.28);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 12px 30px -20px rgba(80, 60, 160, 0.4);
 }
-.lp-card:hover { transform: translateY(-4px); box-shadow: 0 20px 44px -20px rgba(120, 100, 70, 0.34); }
+.app-press { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.app-press:active { transform: scale(0.97); }
 
-/* 버튼 */
-.lp-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-  border-radius: 9999px; padding: 0.95rem 2.2rem;
-  font-size: 0.95rem; font-weight: 600; letter-spacing: 0.01em;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+/* 서비스 타일 아이콘 배경 */
+.app-tile-ico {
+  border-radius: 1.1rem;
+  background: linear-gradient(160deg, #f3effd 0%, #fdf4ef 100%);
+  border: 1px solid var(--a-line);
 }
-.lp-btn-primary {
-  background: var(--b-ink); color: var(--b-cream);
-  box-shadow: 0 14px 30px -14px rgba(58, 51, 41, 0.55);
-}
-.lp-btn-primary:hover { transform: translateY(-2px); background: #2c2620; }
-.lp-btn-ghost {
-  background: transparent; color: var(--b-ink);
-  border: 1px solid var(--b-taupe);
-}
-.lp-btn-ghost:hover { background: rgba(205, 191, 168, 0.18); }
 
-@keyframes lpFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-10px); } }
-.lp-float { animation: lpFloat 6s ease-in-out infinite; }
+/* 그라데이션 피처 카드 */
+.app-feature {
+  background: linear-gradient(135deg, #6e5bd6 0%, #8f6fe8 55%, #b98ad8 100%);
+  border-radius: 1.75rem;
+  box-shadow: 0 22px 44px -22px rgba(110, 91, 214, 0.7);
+}
+
+/* 알약형 버튼 */
+.app-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  border-radius: 9999px; font-weight: 700; font-size: 0.92rem;
+  padding: 0.8rem 1.5rem; transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.app-btn:active { transform: scale(0.97); }
+.app-btn-light { background: #ffffff; color: var(--a-primary); }
+.app-btn-primary { background: var(--a-primary); color: #fff; box-shadow: 0 14px 26px -12px rgba(110, 91, 214, 0.6); }
+
+/* 하단 탭바 */
+.app-tabbar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 460px; z-index: 40;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--a-line);
+}
+.app-tab { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.66rem; color: var(--a-muted); }
+.app-tab[data-active="true"] { color: var(--a-primary); }
+
+/* 가로 스크롤(이벤트) */
+.app-scroll { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.app-scroll::-webkit-scrollbar { display: none; }
+.app-scroll > * { scroll-snap-align: start; }
+
+@keyframes appFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-8px); } }
+.app-float { animation: appFloat 6s ease-in-out infinite; }
 
 /* ── 인쇄(PDF) 전용 ──────────────────────────────────────────────── */
 @media print {
