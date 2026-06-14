@@ -53,12 +53,19 @@ const TRANSPARENT = `isolated subject centered, placed on a completely solid fla
  * group: 그룹 필터용 키 / file: public/brand 기준 상대경로 / prompt: 생성 프롬프트
  */
 const ASSETS = [
-  // 1) 히어로 — 실사 느낌의 우아한 한복 여성 (소프트 파스텔 배경, 프레임용)
+  // 1) 히어로 — "묘월의 마녀" 브랜드 캐릭터(소프트 3D 클레이, 투명배경)
   {
     group: "hero",
     file: "char-hero.png",
-    transparent: false,
-    prompt: `Photorealistic editorial portrait of an elegant young Korean woman in her late twenties wearing a refined soft pastel hanbok (lavender and peach tones), serene gentle smile, calm and trustworthy gaze toward the viewer, mystical and warm atmosphere. Subtle celestial accents float softly around her: a delicate crescent moon, faint stars and gentle light bokeh. Smooth soft cinematic studio lighting, shallow depth of field, dreamy soft pastel lavender-to-peach gradient background, professional fashion photography, ultra detailed skin and fabric, natural beautiful face, head-and-shoulders to waist composition, centered. ${STYLE.noText}.`,
+    transparent: true,
+    prompt: `Cute charming brand mascot character: a friendly young witch named "Vernal Witch" for a Korean fortune-telling (사주·타로·운세) brand. ${STYLE.clay3d}. She wears a soft rounded pointed witch hat decorated with a small crescent moon and tiny stars, a cozy pastel cloak, gentle warm smile, big friendly eyes. She gently holds a softly glowing crystal ball, and a tiny cute black cat companion sits beside her. Spring pastel palette (lavender, mint, peach, cream), mystical soft sparkles around her. Centered full body, front three-quarter view, adorable and approachable. ${TRANSPARENT}. ${STYLE.noText}.`,
+  },
+  // 1-b) 마녀 얼굴 아이콘(앱 아이콘/아바타용, 투명배경)
+  {
+    group: "hero",
+    file: "char-emblem.png",
+    transparent: true,
+    prompt: `App-icon style emblem: the head-and-shoulders of a cute 3D clay witch mascot wearing a soft pointed hat with a crescent moon, gentle smile, with a tiny black cat peeking beside her. ${STYLE.clay3d}. Spring pastel palette (lavender, mint, peach, cream), simple and readable at small size, centered. ${TRANSPARENT}. ${STYLE.noText}.`,
   },
 
   // 2) 이벤트 배너 배경 3종 (와이드, 배경 위주)

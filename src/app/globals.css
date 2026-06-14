@@ -69,20 +69,21 @@ body {
 .app-stage {
   min-height: 100vh;
   background:
-    radial-gradient(120% 60% at 50% 0%, #efe7ff 0%, transparent 55%),
-    linear-gradient(180deg, #f3f0fb 0%, #f7f3f0 100%);
+    radial-gradient(120% 60% at 50% 0%, #ece5fb 0%, transparent 55%),
+    linear-gradient(180deg, #f3effb 0%, #f7f3ee 100%);
   display: flex;
   justify-content: center;
 }
 .app {
-  --a-bg: #f7f5fc;
+  --a-bg: #f8f5fb;
   --a-surface: #ffffff;
-  --a-ink: #2a2535;
-  --a-muted: #8e879d;
-  --a-line: rgba(110, 91, 214, 0.1);
-  --a-primary: #6e5bd6;
-  --a-primary2: #9b7ff0;
-  --a-peach: #f4a98a;
+  --a-ink: #2c2738;
+  --a-muted: #8c86a0;
+  --a-line: rgba(124, 108, 216, 0.12);
+  --a-primary: #7c6cd8;
+  --a-primary2: #a98bee;
+  --a-mint: #bfe6d2;
+  --a-peach: #fad7be;
   position: relative;
   width: 100%;
   max-width: 460px;
@@ -114,11 +115,36 @@ body {
   border: 1px solid var(--a-line);
 }
 
-/* 그라데이션 피처 카드 */
+/* 상단 그라데이션 헤더(라일락→민트→크림) */
+.app-hero {
+  background:
+    radial-gradient(90% 70% at 85% 0%, rgba(255,255,255,0.5), transparent 60%),
+    linear-gradient(165deg, #ebe4fb 0%, #e7eff0 55%, #f8f5ef 100%);
+  border-bottom-left-radius: 2rem;
+  border-bottom-right-radius: 2rem;
+}
+/* 작은 배지/알약 */
+.app-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  border-radius: 9999px; padding: 3px 10px;
+  font-size: 0.72rem; font-weight: 700;
+  background: rgba(255, 255, 255, 0.75); color: var(--a-primary);
+  border: 1px solid var(--a-line);
+}
+
+/* 출석/오늘의 운세 카드 그라데이션 */
 .app-feature {
-  background: linear-gradient(135deg, #6e5bd6 0%, #8f6fe8 55%, #b98ad8 100%);
+  background:
+    radial-gradient(80% 120% at 90% 10%, rgba(255,255,255,0.18), transparent 55%),
+    linear-gradient(135deg, #7c6cd8 0%, #9a7fea 55%, #c79be0 100%);
   border-radius: 1.75rem;
-  box-shadow: 0 22px 44px -22px rgba(110, 91, 214, 0.7);
+  box-shadow: 0 22px 44px -24px rgba(124, 108, 216, 0.7);
+}
+/* 빠른 메뉴 도크 */
+.app-dock-ico {
+  border-radius: 1.1rem;
+  background: linear-gradient(160deg, #f1ecfd 0%, #fdf5ef 100%);
+  border: 1px solid var(--a-line);
 }
 
 /* 알약형 버튼 */

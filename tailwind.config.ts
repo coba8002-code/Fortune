@@ -16,16 +16,16 @@ const config: Config = {
           metal: "#B4B7B2",
           water: "#6E8BA6",
         },
-        // 베이지 럭셔리 브랜드 팔레트(랜딩) — 깔끔·심플·고급
-        brand: {
+        // 묘월의 마녀 — 브랜드 팔레트
+        witch: {
+          violet: "#7C6CD8",
+          violet2: "#A98BEE",
+          mint: "#BFE6D2",
+          peach: "#FAD7BE",
           cream: "#FBF7F1",
-          sand: "#F2EBDF",
-          beige: "#E8DECE",
-          taupe: "#CDBFA8",
-          bronze: "#A88B5C",
-          coffee: "#6B6051",
-          ink: "#3A3329",
-          muted: "#938875",
+          ink: "#2C2738",
+          muted: "#8C86A0",
+          line: "#EAE4F6",
         },
       },
       fontFamily: {
