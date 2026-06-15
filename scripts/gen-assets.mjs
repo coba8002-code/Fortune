@@ -67,6 +67,20 @@ const ASSETS = [
     transparent: true,
     prompt: `App-icon style emblem: the head-and-shoulders of a cute 3D clay witch mascot wearing a soft pointed hat with a crescent moon, gentle smile, with a tiny black cat peeking beside her. ${STYLE.clay3d}. Spring pastel palette (lavender, mint, peach, cream), simple and readable at small size, centered. ${TRANSPARENT}. ${STYLE.noText}.`,
   },
+  // 1-c) 로딩용 포즈 — 마녀가 솥을 젓는 모습
+  {
+    group: "hero",
+    file: "char-loading.png",
+    transparent: true,
+    prompt: `Cute 3D clay witch mascot (the same Vernal Witch: soft pointed hat with crescent moon, cozy pastel cloak) happily stirring a small glowing magic cauldron with a wooden spoon, soft sparkles and tiny stars rising from the pot, focused gentle smile, a tiny cute black cat watching beside her. ${STYLE.clay3d}. Spring pastel palette (lavender, mint, peach, cream). Centered full body. ${TRANSPARENT}. ${STYLE.noText}.`,
+  },
+  // 1-d) 빈 화면용 포즈 — 어깨를 으쓱하는 마녀
+  {
+    group: "hero",
+    file: "char-empty.png",
+    transparent: true,
+    prompt: `Cute 3D clay witch mascot (the same Vernal Witch: soft pointed hat with crescent moon, cozy pastel cloak) shrugging with open empty hands and a curious slightly puzzled expression, a couple of small soft question marks floating above, a tiny cute black cat tilting its head beside her. ${STYLE.clay3d}. Spring pastel palette (lavender, mint, peach, cream). Centered full body. ${TRANSPARENT}. ${STYLE.noText}.`,
+  },
 
   // 2) 이벤트 배너 배경 3종 (와이드, 배경 위주)
   {

@@ -34,6 +34,7 @@ function dayOfYear(d: Date) {
 export default function Today() {
   const [today, setToday] = useState<Date | null>(null);
   const [flipped, setFlipped] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   // 날짜는 마운트 후 계산(하이드레이션 불일치 방지)
   useEffect(() => setToday(new Date()), []);
@@ -156,9 +157,17 @@ export default function Today() {
             </div>
 
             {/* 더 깊이 보기 */}
-            <Link href="/report/SAMPLE" className="app-btn app-btn-primary app-reveal mt-5 flex w-full" style={{ animationDelay: "0.3s" }}>
+            <Link href="/checkout" className="app-btn app-btn-primary app-reveal mt-5 flex w-full" style={{ animationDelay: "0.3s" }}>
               내 사주로 더 깊이 보기 →
             </Link>
+            <button
+              type="button"
+              onClick={() => setShowShare(true)}
+              className="app-btn app-reveal mt-2 flex w-full border border-witch-line text-witch-ink"
+              style={{ animationDelay: "0.34s" }}
+            >
+              공유 카드 만들기 📸
+            </button>
             <button
               type="button"
               onClick={() => setFlipped(false)}
@@ -167,6 +176,58 @@ export default function Today() {
               다시 보기
             </button>
           </section>
+        )}
+
+        {/* 공유 카드(스토리) 오버레이 */}
+        {showShare && (
+          <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-witch-ink/70 px-6 backdrop-blur-sm" onClick={() => setShowShare(false)}>
+            <div
+              className="app-pop relative w-full max-w-[300px] overflow-hidden rounded-[1.75rem] text-center text-white shadow-2xl"
+              style={{ aspectRatio: "9 / 16", background: "radial-gradient(70% 50% at 50% 18%, rgba(255,255,255,0.18), transparent 60%), linear-gradient(165deg,#7c6cd8 0%,#9a7fea 55%,#c79be0 100%)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex h-full flex-col items-center px-6 py-7">
+                <p className="app-serif text-sm font-bold tracking-wide text-white/90">묘월의 마녀</p>
+                <p className="mt-0.5 text-[11px] text-white/70">{dateLabel} 오늘의 운세</p>
+
+                <span className="mt-4 text-5xl">{card.emoji}</span>
+                <p className="mt-2 app-serif text-2xl font-extrabold">{card.name}</p>
+                <div className="mt-2 flex flex-wrap justify-center gap-1.5">
+                  {card.keywords.map((k) => (
+                    <span key={k} className="rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold">#{k}</span>
+                  ))}
+                </div>
+
+                <p className="mt-4 text-3xl font-extrabold">{card.score}<span className="text-base font-normal text-white/70">/100</span></p>
+
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/brand/char-hero.png" alt="묘월의 마녀" className="my-3 h-28 w-28 object-contain" />
+
+                <p className="px-1 text-[13px] leading-relaxed text-white/95">“{card.message}”</p>
+
+                <div className="mt-auto pt-3 text-[10px] tracking-wide text-white/70">@묘월의마녀 · vernalwitch.com</div>
+              </div>
+            </div>
+
+            <div className="mt-5 flex w-full max-w-[300px] gap-2" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={() => {
+                  const text = `오늘의 운세 — ${card.name} (${card.score}/100)\n${card.message}`;
+                  if (typeof navigator !== "undefined" && navigator.share) {
+                    navigator.share({ title: "묘월의 마녀 · 오늘의 운세", text, url: "https://vernalwitch.com" }).catch(() => {});
+                  }
+                }}
+                className="app-btn app-btn-light flex-1"
+              >
+                공유하기
+              </button>
+              <button type="button" onClick={() => setShowShare(false)} className="app-btn flex-1 border border-white/40 text-white">
+                닫기
+              </button>
+            </div>
+            <p className="mt-3 text-center text-[11px] text-white/70">카드를 캡처해 인스타 스토리에 올려보세요 ✨</p>
+          </div>
         )}
 
         <AppTabBar active="fortune" />

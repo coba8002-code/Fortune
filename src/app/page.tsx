@@ -185,7 +185,7 @@ export default function Home() {
               <p className="app-serif text-base font-bold text-witch-ink">나의 운명 프로파일</p>
               <p className="mt-1 text-xs text-witch-muted">생년월일만으로 시작하는 한 권의 리포트</p>
             </div>
-            <Link href="/report/SAMPLE" className="app-btn app-btn-primary shrink-0">시작</Link>
+            <Link href="/checkout" className="app-btn app-btn-primary shrink-0">시작</Link>
           </div>
         </section>
 
