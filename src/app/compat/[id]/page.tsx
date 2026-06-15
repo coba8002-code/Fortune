@@ -5,6 +5,7 @@ import { ElementRadarDual } from "@/components/ElementRadarDual";
 import { RelationshipTimeline } from "@/components/RelationshipTimeline";
 import { SectionRenderer } from "@/components/SectionRenderer";
 import { ELEMENT_COLOR } from "@/lib/ui/element";
+import ReportNav from "@/components/ReportNav";
 
 const STAT_LABEL: Record<string, string> = {
   attraction: "끌림", comm: "소통", stability: "안정", growth: "성장", friction: "마찰",
@@ -21,6 +22,7 @@ export default async function CompatPage({ params }: { params: { id: string } })
 
   return (
     <main className="min-h-screen pb-28">
+      <ReportNav title="궁합" />
       {/* 표지 */}
       <header className="mx-auto max-w-2xl px-8 pt-16 text-center">
         <span className="label-caps">Compatibility · 궁합</span>

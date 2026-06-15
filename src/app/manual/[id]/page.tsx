@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ManualCard } from "@/components/ManualCard";
 import { sampleManual } from "@/lib/manual/sampleManual";
+import ReportNav from "@/components/ReportNav";
 
 /**
  * 취급설명서 페이지 — 공유 밈 카드.
@@ -16,12 +17,15 @@ export default async function ManualPage({ params }: { params: { id: string } })
   if (!manual) notFound();
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-6 py-12">
-      <div className="w-full">
-        <ManualCard manual={manual} />
-        <p className="no-print mx-auto mt-5 max-w-md text-center text-xs text-ivory/40">
-          캡처해서 친구·연인에게 보내보세요 📩
-        </p>
+    <main className="min-h-screen">
+      <ReportNav title="취급설명서" />
+      <div className="flex items-center justify-center px-6 py-12">
+        <div className="w-full">
+          <ManualCard manual={manual} />
+          <p className="no-print mx-auto mt-5 max-w-md text-center text-xs text-ivory/40">
+            캡처해서 친구·연인에게 보내보세요 📩
+          </p>
+        </div>
       </div>
     </main>
   );

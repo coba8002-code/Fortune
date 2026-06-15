@@ -3,6 +3,7 @@ import { getFortune } from "@/lib/fortune/store";
 import { LifeGraph } from "@/components/LifeGraph";
 import { YearlyGraph } from "@/components/YearlyGraph";
 import { ELEMENT_COLOR, ELEMENT_HANJA } from "@/lib/ui/element";
+import ReportNav from "@/components/ReportNav";
 
 export default async function FortunePage({ params }: { params: { id: string } }) {
   const report = await getFortune(params.id);
@@ -13,6 +14,7 @@ export default async function FortunePage({ params }: { params: { id: string } }
 
   return (
     <main className="min-h-screen pb-28">
+      <ReportNav title="운세" />
       {/* 표지 */}
       <header className="mx-auto max-w-2xl px-8 pt-16 text-center">
         <span className="label-caps">Fortune Timeline · 운세</span>
