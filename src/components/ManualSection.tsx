@@ -17,7 +17,7 @@ export function ManualSection({ manual }: { manual: UserManual }) {
         <div className="hairline mx-auto mt-5 max-w-xs" />
       </header>
 
-      <div className="mt-8 divide-y divide-white/[0.06]">
+      <div className="mt-8 divide-y divide-black/[0.08]">
         {manual.items.map((item, i) => (
           <div key={i} className="flex gap-5 py-5">
             <span className="font-display text-sm text-gold/60">{String(i + 1).padStart(2, "0")}</span>

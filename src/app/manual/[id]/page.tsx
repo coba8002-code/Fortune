@@ -19,7 +19,7 @@ export default async function ManualPage({ params }: { params: { id: string } })
     <main className="flex min-h-screen items-center justify-center px-6 py-12">
       <div className="w-full">
         <ManualCard manual={manual} />
-        <p className="no-print mx-auto mt-5 max-w-md text-center text-xs text-white/40">
+        <p className="no-print mx-auto mt-5 max-w-md text-center text-xs text-ivory/40">
           캡처해서 친구·연인에게 보내보세요 📩
         </p>
       </div>

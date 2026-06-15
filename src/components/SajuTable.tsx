@@ -35,8 +35,8 @@ function Glyph({ char, color }: { char: string; color?: string }) {
     <div
       className="mx-auto flex h-11 w-11 items-center justify-center font-display text-xl"
       style={{
-        color: color ?? "rgba(236,230,216,0.85)",
-        border: `1px solid ${color ? color + "44" : "rgba(255,255,255,0.08)"}`,
+        color: color ?? "rgba(44,39,56,0.85)",
+        border: `1px solid ${color ? color + "44" : "rgba(0,0,0,0.1)"}`,
       }}
     >
       {char}

@@ -79,7 +79,7 @@ export default async function ReportPage({
                 {typeof cat.score === "number" && <span className="font-display text-xs text-ivory/45">{cat.score}</span>}
               </div>
               {typeof cat.score === "number" && (
-                <div className="mt-2 h-px w-full bg-white/10">
+                <div className="mt-2 h-px w-full bg-black/10">
                   <div className="h-px bg-gold" style={{ width: `${cat.score}%` }} />
                 </div>
               )}

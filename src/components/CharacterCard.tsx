@@ -18,12 +18,12 @@ export function CharacterCard({ card, subject }: { card: Card; subject: Subject 
 
   return (
     <div
-      className="relative mx-auto w-full max-w-md overflow-hidden rounded-sm border border-gold/30 bg-surface"
-      style={{ boxShadow: "0 30px 80px -40px rgba(0,0,0,0.8)" }}
+      className="relative mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-gold/30 bg-surface"
+      style={{ boxShadow: "0 24px 60px -34px rgba(124,108,216,0.4)" }}
     >
       {/* 한자 워터마크 */}
       <div
-        className="pointer-events-none absolute -right-6 -top-10 select-none font-display text-[12rem] leading-none text-white/[0.03]"
+        className="pointer-events-none absolute -right-6 -top-10 select-none font-display text-[12rem] leading-none text-black/[0.04]"
         aria-hidden
       >
         {ELEMENT_HANJA[card.mainElement]}
@@ -60,7 +60,7 @@ export function CharacterCard({ card, subject }: { card: Card; subject: Subject 
               <span className="w-9 shrink-0 font-display text-xs tracking-wider text-ivory/55">
                 {STAT_LABEL[k]}
               </span>
-              <div className="h-px flex-1 bg-white/10">
+              <div className="h-px flex-1 bg-black/10">
                 <div className="h-px" style={{ width: `${card.stats[k]}%`, background: accent }} />
               </div>
               <span className="w-7 shrink-0 text-right font-display text-xs text-ivory/40">
@@ -103,7 +103,7 @@ function SkillRow({
           <span
             key={i}
             className="h-1 w-3"
-            style={{ background: on ? (muted ? "rgba(236,230,216,0.4)" : GOLD) : "rgba(255,255,255,0.1)" }}
+            style={{ background: on ? (muted ? "rgba(44,39,56,0.35)" : GOLD) : "rgba(0,0,0,0.1)" }}
           />
         ))}
       </span>

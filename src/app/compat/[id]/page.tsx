@@ -54,7 +54,7 @@ export default async function CompatPage({ params }: { params: { id: string } })
           {(Object.keys(score.breakdown) as (keyof typeof score.breakdown)[]).map((k) => (
             <div key={k} className="flex items-center gap-4 text-sm">
               <span className="w-12 shrink-0 font-display text-ivory/60">{STAT_LABEL[k]}</span>
-              <div className="h-px flex-1 bg-white/10">
+              <div className="h-px flex-1 bg-black/10">
                 <div className="h-px bg-gold" style={{ width: `${score.breakdown[k]}%` }} />
               </div>
               <span className="w-7 text-right font-display text-xs text-ivory/45">{score.breakdown[k]}</span>
@@ -70,7 +70,7 @@ export default async function CompatPage({ params }: { params: { id: string } })
         <div className="hairline mt-5" />
         <div className="mt-2">
           {basis.map((row, i) => (
-            <div key={i} className="flex gap-4 border-b border-white/[0.05] py-3.5">
+            <div key={i} className="flex gap-4 border-b border-black/[0.07] py-3.5">
               <div className="w-24 shrink-0 font-display text-sm text-gold/80">{row.label}</div>
               <div className="text-sm leading-relaxed text-ivory/85">{row.text}</div>
             </div>
@@ -88,7 +88,7 @@ export default async function CompatPage({ params }: { params: { id: string } })
             <div key={area.key}>
               <div className="flex items-center gap-4">
                 <span className="w-14 shrink-0 font-display text-sm text-ivory/70">{area.label}</span>
-                <div className="h-px flex-1 bg-white/10">
+                <div className="h-px flex-1 bg-black/10">
                   <div className="h-px bg-gold" style={{ width: `${area.score}%` }} />
                 </div>
                 <span className="w-8 text-right font-display text-xs text-ivory/45">{area.score}</span>
@@ -130,7 +130,7 @@ export default async function CompatPage({ params }: { params: { id: string } })
                 <h3 className="flex-1 font-display text-lg font-bold text-ivory">{cat.title}</h3>
                 <span className="font-display text-xs text-ivory/45">{cat.score}</span>
               </div>
-              <div className="mt-2 h-px w-full bg-white/10">
+              <div className="mt-2 h-px w-full bg-black/10">
                 <div className="h-px bg-gold" style={{ width: `${cat.score}%` }} />
               </div>
               <ul className="mt-3 space-y-1.5">
@@ -159,7 +159,7 @@ export default async function CompatPage({ params }: { params: { id: string } })
           <h2 className="mt-3 font-display text-2xl font-bold text-ivory">두 사람 취급설명서</h2>
           <div className="hairline mx-auto mt-5 max-w-xs" />
         </header>
-        <div className="mt-8 divide-y divide-white/[0.06]">
+        <div className="mt-8 divide-y divide-black/[0.08]">
           {manual.items.map((item, i) => (
             <div key={i} className="flex gap-5 py-5">
               <span className="font-display text-sm text-gold/60">{String(i + 1).padStart(2, "0")}</span>
@@ -170,7 +170,7 @@ export default async function CompatPage({ params }: { params: { id: string } })
             </div>
           ))}
         </div>
-        <div className="mt-6 border-t pt-5" style={{ borderColor: "#c4a35a" }}>
+        <div className="mt-6 border-t pt-5" style={{ borderColor: "#7C6CD8" }}>
           <div className="font-display text-[11px] uppercase tracking-[0.25em] text-gold">관계 취급주의</div>
           <p className="mt-1.5 text-sm leading-relaxed text-ivory/80">{manual.warning}</p>
         </div>

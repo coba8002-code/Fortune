@@ -5,10 +5,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#0c0b09",
-        surface: "#16140f",
-        ivory: "#ece6d8",
-        gold: "#c4a35a",
+        // 리포트 계열 토큰 — 묘월의 마녀 라이트 파스텔로 리매핑
+        // (의미: ink=배경, surface=카드, ivory=본문 텍스트, gold=포인트)
+        ink: "#FBF7F1",
+        surface: "#FFFFFF",
+        ivory: "#2C2738",
+        gold: "#7C6CD8",
         element: {
           wood: "#7C9A74",
           fire: "#C2705A",

@@ -20,11 +20,11 @@ export function YearlyGraph({ yearly, currentYear }: { yearly: YearPoint[]; curr
     <div>
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="연도별 운세">
         {[0.25, 0.5, 0.75].map((f) => (
-          <line key={f} x1={padX} y1={padTop + f * (H - padTop - padBot)} x2={W - padX} y2={padTop + f * (H - padTop - padBot)} stroke="rgba(255,255,255,.05)" />
+          <line key={f} x1={padX} y1={padTop + f * (H - padTop - padBot)} x2={W - padX} y2={padTop + f * (H - padTop - padBot)} stroke="rgba(0,0,0,.06)" />
         ))}
         {/* 현재 연도 마커 */}
-        <line x1={xOf(currentYear)} y1={padTop} x2={xOf(currentYear)} y2={H - padBot} stroke="rgba(232,207,147,.5)" strokeDasharray="3 3" />
-        <text x={xOf(currentYear)} y={padTop - 6} fontSize={10} fill="#e8cf93" textAnchor="middle" style={{ fontFamily: "var(--font-display)" }}>올해</text>
+        <line x1={xOf(currentYear)} y1={padTop} x2={xOf(currentYear)} y2={H - padBot} stroke="rgba(124,108,216,.45)" strokeDasharray="3 3" />
+        <text x={xOf(currentYear)} y={padTop - 6} fontSize={10} fill="#7C6CD8" textAnchor="middle" style={{ fontFamily: "var(--font-display)" }}>올해</text>
         {/* 3색 곡선 */}
         {SERIES.map((s) => (
           <g key={s.key}>
@@ -36,7 +36,7 @@ export function YearlyGraph({ yearly, currentYear }: { yearly: YearPoint[]; curr
         ))}
         {/* 연도 축(짝수 해만) */}
         {yearly.filter((_, i) => i % 2 === 0).map((p) => (
-          <text key={p.year} x={xOf(p.year)} y={H - padBot + 16} fontSize={9} fill="rgba(236,230,216,.4)" textAnchor="middle" style={{ fontFamily: "var(--font-display)" }}>
+          <text key={p.year} x={xOf(p.year)} y={H - padBot + 16} fontSize={9} fill="rgba(44,39,56,.5)" textAnchor="middle" style={{ fontFamily: "var(--font-display)" }}>
             {`'${String(p.year).slice(2)}`}
           </text>
         ))}

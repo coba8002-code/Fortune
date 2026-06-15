@@ -39,29 +39,29 @@ export function LifeGraph({
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="인생 그래프">
       {/* 가로 기준선 */}
       {[0.25, 0.5, 0.75].map((f) => (
-        <line key={f} x1={padX} y1={padTop + f * (H - padTop - padBot)} x2={W - padX} y2={padTop + f * (H - padTop - padBot)} stroke="rgba(255,255,255,.05)" />
+        <line key={f} x1={padX} y1={padTop + f * (H - padTop - padBot)} x2={W - padX} y2={padTop + f * (H - padTop - padBot)} stroke="rgba(0,0,0,.06)" />
       ))}
       {/* 영역 + 곡선 */}
-      <polygon points={area} fill="rgba(196,163,90,.10)" />
-      <polyline points={line} fill="none" stroke="#c4a35a" strokeWidth={2} />
+      <polygon points={area} fill="rgba(124,108,216,.10)" />
+      <polyline points={line} fill="none" stroke="#7C6CD8" strokeWidth={2} />
       {/* 대운 분기 점 + 나이 라벨 */}
       {daewoon.map((d) => (
         <g key={d.index}>
-          <circle cx={xOf(d.startAge + 5)} cy={yOf(d.score)} r={d.current ? 4 : 2.5} fill={d.current ? "#e8cf93" : "#c4a35a"} />
-          <text x={xOf(d.startAge)} y={H - padBot + 16} fontSize={10} fill="rgba(236,230,216,.4)" textAnchor="middle" style={{ fontFamily: "var(--font-display)" }}>
+          <circle cx={xOf(d.startAge + 5)} cy={yOf(d.score)} r={d.current ? 4 : 2.5} fill={d.current ? "#7C6CD8" : "#A98BEE"} />
+          <text x={xOf(d.startAge)} y={H - padBot + 16} fontSize={10} fill="rgba(44,39,56,.5)" textAnchor="middle" style={{ fontFamily: "var(--font-display)" }}>
             {d.startAge}
           </text>
-          <text x={xOf(d.startAge + 5)} y={H - padBot + 30} fontSize={9} fill="rgba(196,163,90,.6)" textAnchor="middle" style={{ fontFamily: "var(--font-display)" }}>
+          <text x={xOf(d.startAge + 5)} y={H - padBot + 30} fontSize={9} fill="rgba(124,108,216,.65)" textAnchor="middle" style={{ fontFamily: "var(--font-display)" }}>
             {d.stem}{d.branch}
           </text>
         </g>
       ))}
       {/* 현재 나이 마커 */}
-      <line x1={xOf(currentAge)} y1={padTop} x2={xOf(currentAge)} y2={H - padBot} stroke="rgba(232,207,147,.5)" strokeDasharray="3 3" />
-      <text x={xOf(currentAge)} y={padTop - 6} fontSize={10} fill="#e8cf93" textAnchor="middle" style={{ fontFamily: "var(--font-display)" }}>지금 {currentAge}</text>
+      <line x1={xOf(currentAge)} y1={padTop} x2={xOf(currentAge)} y2={H - padBot} stroke="rgba(124,108,216,.45)" strokeDasharray="3 3" />
+      <text x={xOf(currentAge)} y={padTop - 6} fontSize={10} fill="#7C6CD8" textAnchor="middle" style={{ fontFamily: "var(--font-display)" }}>지금 {currentAge}</text>
       {/* 이벤트 점 */}
       {events.map((e, i) => (
-        <circle key={i} cx={xOf(e.age)} cy={yAt(e.age)} r={3.5} fill="none" stroke="#e8cf93" strokeWidth={1.4} />
+        <circle key={i} cx={xOf(e.age)} cy={yAt(e.age)} r={3.5} fill="none" stroke="#7C6CD8" strokeWidth={1.4} />
       ))}
     </svg>
   );
