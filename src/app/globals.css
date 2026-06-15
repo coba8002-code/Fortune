@@ -178,6 +178,41 @@ body {
 @keyframes appFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-8px); } }
 .app-float { animation: appFloat 6s ease-in-out infinite; }
 
+/* ── 오늘의 운세 — 카드 뒤집기 ─────────────────────────────────── */
+.flip { perspective: 1400px; }
+.flip-inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flip.is-on .flip-inner { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute; inset: 0;
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  border-radius: 1.5rem; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.flip-back { transform: rotateY(180deg); }
+.card-back {
+  background:
+    radial-gradient(60% 50% at 50% 28%, rgba(255,255,255,0.22), transparent 60%),
+    linear-gradient(160deg, #6f5ecf 0%, #4b3f9e 100%);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 26px 50px -24px rgba(75, 63, 158, 0.8);
+}
+.card-front {
+  background: linear-gradient(160deg, #ffffff 0%, #f6f1ff 100%);
+  border: 1px solid var(--a-line);
+  box-shadow: 0 26px 50px -24px rgba(124, 108, 216, 0.55);
+}
+@keyframes appReveal { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.app-reveal { animation: appReveal 0.5s ease both; }
+@keyframes appPop { 0% { transform: scale(0.7); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+.app-pop { animation: appPop 0.5s cubic-bezier(0.2,0.8,0.2,1) both; }
+@keyframes appTwinkle { 0%,100% { opacity: 0.25; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } }
+.app-twinkle { animation: appTwinkle 2.2s ease-in-out infinite; }
+
 /* ── 인쇄(PDF) 전용 ──────────────────────────────────────────────── */
 @media print {
   body {

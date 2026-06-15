@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AppTabBar from "@/components/AppTabBar";
 
 /** 서비스 9종 — 아이콘: public/brand/menu/*.png */
 const SERVICES = [
@@ -16,7 +17,7 @@ const SERVICES = [
 const EVENTS = [
   { img: "launch", title: "런칭 기념", desc: "첫 리포트 무료 체험", href: "/report/SAMPLE" },
   { img: "gunghap", title: "궁합 스페셜", desc: "커플 리포트 20% 할인", href: "/compat/DEMO" },
-  { img: "consult", title: "오늘의 운세", desc: "출석하고 스탬프 받기", href: "/fortune/DEMO1980" },
+  { img: "consult", title: "오늘의 운세", desc: "출석하고 스탬프 받기", href: "/today" },
 ];
 
 /** 마법사 등급(게이미피케이션) */
@@ -30,24 +31,9 @@ const Ico = {
       <path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
     </svg>
   ),
-  home: (p: { className?: string }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={p.className}>
-      <path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" />
-    </svg>
-  ),
-  moon: (p: { className?: string }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={p.className}>
-      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
-    </svg>
-  ),
   star: (p: { className?: string }) => (
     <svg viewBox="0 0 24 24" fill="currentColor" className={p.className}>
       <path d="M12 2.5l2.6 6 6.4.5-4.9 4.2 1.5 6.3L12 16.9 6.4 19.5l1.5-6.3L3 9l6.4-.5z" />
-    </svg>
-  ),
-  user: (p: { className?: string }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className={p.className}>
-      <circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" />
     </svg>
   ),
 };
@@ -103,7 +89,7 @@ export default function Home() {
 
         {/* 오늘의 운세 출석 카드 */}
         <section className="px-5 pt-5">
-          <Link href="/fortune/DEMO1980" className="app-feature app-press relative block overflow-hidden p-6">
+          <Link href="/today" className="app-feature app-press relative block overflow-hidden p-6">
             <div className="relative z-10 max-w-[60%]">
               <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold text-white">
                 🔥 5일째 출석 중
@@ -201,24 +187,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 하단 탭바 (가운데 FAB = 오늘의 운세) */}
-        <nav className="app-tabbar">
-          <Link href="/" data-active="true" className="app-tab"><Ico.home className="h-[22px] w-[22px]" />홈</Link>
-          <Link href="/fortune/DEMO1980" className="app-tab"><Ico.moon className="h-[22px] w-[22px]" />운세</Link>
-          <div className="relative flex justify-center">
-            <Link
-              href="/fortune/DEMO1980"
-              className="app-press absolute -top-7 grid h-14 w-14 place-items-center rounded-full text-white shadow-lg"
-              style={{ background: "linear-gradient(135deg,#7c6cd8,#a98bee)", boxShadow: "0 12px 24px -8px rgba(124,108,216,0.7)" }}
-              aria-label="오늘의 운세"
-            >
-              <span className="text-xl">🔮</span>
-            </Link>
-            <span className="mt-9 text-[0.66rem] text-witch-muted">오늘운세</span>
-          </div>
-          <Link href="/report/SAMPLE" className="app-tab"><Ico.star className="h-[20px] w-[20px]" />마법사</Link>
-          <Link href="/report/SAMPLE" className="app-tab"><Ico.user className="h-[22px] w-[22px]" />MY</Link>
-        </nav>
+        <AppTabBar active="home" />
       </main>
     </div>
   );
