@@ -47,6 +47,8 @@ const STYLE = {
  */
 const CHROMA_RGB = { r: 0, g: 177, b: 64 }; // 크로마키 그린
 const TRANSPARENT = `isolated subject centered, placed on a completely solid flat chroma-key green background, fill the entire background edge to edge with pure uniform green color RGB(0,177,64), absolutely no checkerboard, no pattern, no gradient, no vignette, no drop shadow on the ground`;
+// 얼굴이 과노출(흰색)로 날아가지 않게 — 또렷한 이목구비 + 매트 조명
+const FACE = `clearly defined cute face with distinct dark eyes, small gentle smile and soft rosy cheeks, even soft matte lighting on the face, natural warm skin tone, absolutely avoid an overexposed blown-out white or featureless face`;
 
 /**
  * 생성 대상 정의.
@@ -65,21 +67,21 @@ const ASSETS = [
     group: "hero",
     file: "char-emblem.png",
     transparent: true,
-    prompt: `App-icon style emblem: the head-and-shoulders of a cute 3D clay witch mascot wearing a soft pointed hat with a crescent moon, gentle smile, with a tiny black cat peeking beside her. ${STYLE.clay3d}. Spring pastel palette (lavender, mint, peach, cream), simple and readable at small size, centered. ${TRANSPARENT}. ${STYLE.noText}.`,
+    prompt: `App-icon style emblem: the head-and-shoulders of a cute 3D clay witch mascot wearing a soft pointed hat with a crescent moon, gentle smile, with a tiny black cat peeking beside her. ${STYLE.clay3d}. ${FACE}. Spring pastel palette (lavender, mint, peach, cream), simple and readable at small size, centered. ${TRANSPARENT}. ${STYLE.noText}.`,
   },
   // 1-c) 로딩용 포즈 — 마녀가 솥을 젓는 모습
   {
     group: "hero",
     file: "char-loading.png",
     transparent: true,
-    prompt: `Cute 3D clay witch mascot (the same Vernal Witch: soft pointed hat with crescent moon, cozy pastel cloak) happily stirring a small glowing magic cauldron with a wooden spoon, soft sparkles and tiny stars rising from the pot, focused gentle smile, a tiny cute black cat watching beside her. ${STYLE.clay3d}. Spring pastel palette (lavender, mint, peach, cream). Centered full body. ${TRANSPARENT}. ${STYLE.noText}.`,
+    prompt: `Cute 3D clay witch mascot (the same Vernal Witch: soft pointed hat with crescent moon, cozy pastel cloak) happily stirring a small glowing magic cauldron with a wooden spoon, soft sparkles and tiny stars rising from the pot, focused gentle smile, a tiny cute black cat watching beside her. ${STYLE.clay3d}. ${FACE}. Spring pastel palette (lavender, mint, peach, cream). Centered full body. ${TRANSPARENT}. ${STYLE.noText}.`,
   },
   // 1-d) 빈 화면용 포즈 — 어깨를 으쓱하는 마녀
   {
     group: "hero",
     file: "char-empty.png",
     transparent: true,
-    prompt: `Cute 3D clay witch mascot (the same Vernal Witch: soft pointed hat with crescent moon, cozy pastel cloak) shrugging with open empty hands and a curious slightly puzzled expression, a couple of small soft question marks floating above, a tiny cute black cat tilting its head beside her. ${STYLE.clay3d}. Spring pastel palette (lavender, mint, peach, cream). Centered full body. ${TRANSPARENT}. ${STYLE.noText}.`,
+    prompt: `Cute 3D clay witch mascot (the same Vernal Witch: soft pointed hat with crescent moon, cozy pastel cloak) shrugging with open empty hands and a curious slightly puzzled expression, a couple of small soft question marks floating above, a tiny cute black cat tilting its head beside her. ${STYLE.clay3d}. ${FACE}. Spring pastel palette (lavender, mint, peach, cream). Centered full body. ${TRANSPARENT}. ${STYLE.noText}.`,
   },
 
   // 2) 이벤트 배너 배경 3종 (와이드, 배경 위주)
@@ -201,24 +203,27 @@ function removeSpeckles(out, width, height, minAreaFrac = 0.003) {
 
 /**
  * 단색 크로마키(녹색) 배경을 알파(투명)로 변환한다.
- * - 배경색을 테두리에서 자동 샘플링한 뒤, 각 픽셀의 RGB 거리로 키잉.
- * - lowD 이하는 투명, highD 이상은 불투명, 사이는 선형 알파(가장자리 페더링).
- * - 부분 투명 픽셀은 디스필(녹색 성분을 R/B 수준으로 낮춤)로 녹색 테두리를 제거.
- * - 마지막으로 작은 잡티(환각 텍스트 등) 제거.
+ * 배경(녹색)만 제거하고 어두운 피부/그림자는 보존하기 위해 두 조건을 모두 요구한다:
+ *  1) 녹색 우세도 greenness = g - max(r,b) 가 충분히 양수 (배경 녹색만 양수, 피부는 음수)
+ *  2) 샘플링한 배경색과의 RGB 거리가 가까움 (밝은 민트 등 채도 높은 녹색 보존)
+ * 두 팩터의 곱(keyAmount)이 클수록 투명. + 디스필 + 잡티 제거.
  */
-function chromaKeyToAlpha(pngBuffer, { lowD = 72, highD = 110 } = {}) {
+function chromaKeyToAlpha(pngBuffer, { gLow = 8, gHigh = 22, distLow = 45, distHigh = 135 } = {}) {
   const img = PNG.sync.read(pngBuffer);
   const { data, width, height } = img;
   const bg = sampleBackground(data, width, height);
+  const ramp = (v, lo, hi) => (v <= lo ? 0 : v >= hi ? 1 : (v - lo) / (hi - lo));
   const out = new PNG({ width, height });
   for (let i = 0; i < data.length; i += 4) {
     let r = data[i], g = data[i + 1], b = data[i + 2];
+    const greenness = g - Math.max(r, b);
     const dr = r - bg[0], dg = g - bg[1], db = b - bg[2];
     const dist = Math.sqrt(dr * dr + dg * dg + db * db);
-    let alpha;
-    if (dist <= lowD) alpha = 0;
-    else if (dist >= highD) alpha = 255;
-    else alpha = Math.round(((dist - lowD) / (highD - lowD)) * 255);
+    // 두 조건을 모두 만족할 때만 배경으로 판정
+    const greenFactor = ramp(greenness, gLow, gHigh);
+    const nearFactor = 1 - ramp(dist, distLow, distHigh);
+    const keyAmount = greenFactor * nearFactor; // 0=피사체, 1=배경
+    const alpha = Math.round((1 - keyAmount) * 255);
     if (alpha < 255 && g > Math.max(r, b)) g = Math.max(r, b); // 디스필
     out.data[i] = r; out.data[i + 1] = g; out.data[i + 2] = b; out.data[i + 3] = alpha;
   }
