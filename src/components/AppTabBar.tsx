@@ -42,7 +42,7 @@ export default function AppTabBar({ active }: { active: Tab }) {
         </Link>
         <span className="mt-9 text-[0.66rem] text-witch-muted">오늘운세</span>
       </div>
-      <Link href="/report/SAMPLE" data-active={active === "reward"} className="app-tab">{I.star}마법사</Link>
+      <Link href="/reward" data-active={active === "reward"} className="app-tab">{I.star}마법사</Link>
       <Link href="/report/SAMPLE" data-active={active === "my"} className="app-tab">{I.user}MY</Link>
     </nav>
   );
