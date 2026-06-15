@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AppTabBar from "@/components/AppTabBar";
+import OnboardingGate from "@/components/OnboardingGate";
 
 /** 서비스 9종 — 아이콘: public/brand/menu/*.png */
 const SERVICES = [
@@ -41,6 +42,7 @@ const Ico = {
 export default function Home() {
   return (
     <div className="app-stage">
+      <OnboardingGate />
       <main className="app">
         {/* 상태바(목업) */}
         <div className="flex items-center justify-between px-6 pt-3 text-[11px] font-semibold text-witch-ink/70">
