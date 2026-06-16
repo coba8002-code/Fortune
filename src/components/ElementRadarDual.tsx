@@ -26,14 +26,14 @@ export function ElementRadarDual({
   return (
     <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="오행 겹쳐보기">
       {[0.34, 0.67, 1].map((f) => (
-        <polygon key={f} points={ELEMENTS.map((_, i) => pt(i, r * f).join(",")).join(" ")} fill="none" stroke="rgba(196,163,90,.14)" strokeWidth={1} />
+        <polygon key={f} points={ELEMENTS.map((_, i) => pt(i, r * f).join(",")).join(" ")} fill="none" stroke="rgba(124,108,216,.16)" strokeWidth={1} />
       ))}
       <polygon points={poly(a)} fill={`${colorA}28`} stroke={colorA} strokeWidth={1.6} />
       <polygon points={poly(b)} fill={`${colorB}24`} stroke={colorB} strokeWidth={1.6} />
       {ELEMENTS.map((e, i) => {
         const [lx, ly] = pt(i, r + 20);
         return (
-          <text key={e} x={lx} y={ly} fontSize={11} fill="rgba(236,230,216,.55)" textAnchor="middle" dominantBaseline="middle" style={{ fontFamily: "var(--font-display)" }}>
+          <text key={e} x={lx} y={ly} fontSize={11} fill="rgba(44,39,56,.55)" textAnchor="middle" dominantBaseline="middle" style={{ fontFamily: "var(--font-display)" }}>
             {e}
           </text>
         );

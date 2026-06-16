@@ -66,7 +66,7 @@ function Block({ block }: { block: ContentBlock }) {
           <span className="w-24 shrink-0 font-display text-xs tracking-wider text-ivory/50">
             {block.label}
           </span>
-          <div className="h-px flex-1 bg-white/10">
+          <div className="h-px flex-1 bg-black/10">
             <div
               className="h-px"
               style={{ width: `${Math.max(0, Math.min(100, block.value))}%`, background: GOLD }}

@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --ink: #0c0b09;        /* 먹빛 배경 */
-  --surface: #16140f;    /* 카드 표면 */
-  --ivory: #ece6d8;      /* 따뜻한 본문색 */
-  --muted: rgba(236, 230, 216, 0.55);
-  --gold: #c4a35a;
-  --hairline: rgba(196, 163, 90, 0.22);
+  --ink: #FBF7F1;        /* 크림 배경 */
+  --surface: #ffffff;    /* 카드 표면 */
+  --ivory: #2C2738;      /* 본문 텍스트(플럼) */
+  --muted: rgba(44, 39, 56, 0.55);
+  --gold: #7C6CD8;       /* 포인트(위치 바이올렛) */
+  --hairline: rgba(124, 108, 216, 0.22);
   --font-display: "Nanum Myeongjo", "Noto Serif KR", Georgia, "Times New Roman", serif;
   --font-body: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
 }
@@ -22,8 +22,8 @@ body {
   color: var(--ivory);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
-  /* 아주 옅은 비네팅으로 깊이감 */
-  background-image: radial-gradient(120% 80% at 50% -10%, rgba(196, 163, 90, 0.06), transparent 60%);
+  /* 아주 옅은 보라빛 비네팅으로 깊이감 */
+  background-image: radial-gradient(120% 80% at 50% -10%, rgba(124, 108, 216, 0.08), transparent 60%);
 }
 
 /* 디스플레이(제목/숫자)는 명조 계열로 격조 */
@@ -63,6 +63,155 @@ body {
   mix-blend-mode: soft-light; opacity: .08;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
 }
+
+/* ── 모바일 앱 디자인 전용 테마 ──────────────────────────────────────
+   .app 하위에서만 적용 — 리포트(다크) 페이지에는 영향 없음. */
+.app-stage {
+  min-height: 100vh;
+  background:
+    radial-gradient(120% 60% at 50% 0%, #ece5fb 0%, transparent 55%),
+    linear-gradient(180deg, #f3effb 0%, #f7f3ee 100%);
+  display: flex;
+  justify-content: center;
+}
+.app {
+  --a-bg: #f8f5fb;
+  --a-surface: #ffffff;
+  --a-ink: #2c2738;
+  --a-muted: #8c86a0;
+  --a-line: rgba(124, 108, 216, 0.12);
+  --a-primary: #7c6cd8;
+  --a-primary2: #a98bee;
+  --a-mint: #bfe6d2;
+  --a-peach: #fad7be;
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  min-height: 100vh;
+  background: var(--a-bg);
+  color: var(--a-ink);
+  font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  letter-spacing: -0.015em;
+  box-shadow: 0 0 60px -20px rgba(80, 60, 160, 0.25);
+  padding-bottom: 88px; /* 하단 탭바 여백 */
+}
+.app ::selection { background: rgba(110, 91, 214, 0.18); }
+.app-serif { font-family: "Nanum Myeongjo", "Noto Serif KR", Georgia, serif; }
+
+/* 카드 */
+.app-card {
+  background: var(--a-surface);
+  border: 1px solid var(--a-line);
+  border-radius: 1.5rem;
+  box-shadow: 0 12px 30px -20px rgba(80, 60, 160, 0.4);
+}
+.app-press { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.app-press:active { transform: scale(0.97); }
+
+/* 서비스 타일 아이콘 배경 */
+.app-tile-ico {
+  border-radius: 1.1rem;
+  background: linear-gradient(160deg, #f3effd 0%, #fdf4ef 100%);
+  border: 1px solid var(--a-line);
+}
+
+/* 상단 그라데이션 헤더(라일락→민트→크림) */
+.app-hero {
+  background:
+    radial-gradient(90% 70% at 85% 0%, rgba(255,255,255,0.5), transparent 60%),
+    linear-gradient(165deg, #ebe4fb 0%, #e7eff0 55%, #f8f5ef 100%);
+  border-bottom-left-radius: 2rem;
+  border-bottom-right-radius: 2rem;
+}
+/* 작은 배지/알약 */
+.app-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  border-radius: 9999px; padding: 3px 10px;
+  font-size: 0.72rem; font-weight: 700;
+  background: rgba(255, 255, 255, 0.75); color: var(--a-primary);
+  border: 1px solid var(--a-line);
+}
+
+/* 출석/오늘의 운세 카드 그라데이션 */
+.app-feature {
+  background:
+    radial-gradient(80% 120% at 90% 10%, rgba(255,255,255,0.18), transparent 55%),
+    linear-gradient(135deg, #7c6cd8 0%, #9a7fea 55%, #c79be0 100%);
+  border-radius: 1.75rem;
+  box-shadow: 0 22px 44px -24px rgba(124, 108, 216, 0.7);
+}
+/* 빠른 메뉴 도크 */
+.app-dock-ico {
+  border-radius: 1.1rem;
+  background: linear-gradient(160deg, #f1ecfd 0%, #fdf5ef 100%);
+  border: 1px solid var(--a-line);
+}
+
+/* 알약형 버튼 */
+.app-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  border-radius: 9999px; font-weight: 700; font-size: 0.92rem;
+  padding: 0.8rem 1.5rem; transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.app-btn:active { transform: scale(0.97); }
+.app-btn-light { background: #ffffff; color: var(--a-primary); }
+.app-btn-primary { background: var(--a-primary); color: #fff; box-shadow: 0 14px 26px -12px rgba(110, 91, 214, 0.6); }
+
+/* 하단 탭바 */
+.app-tabbar {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 460px; z-index: 40;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--a-line);
+}
+.app-tab { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 0.66rem; color: var(--a-muted); }
+.app-tab[data-active="true"] { color: var(--a-primary); }
+
+/* 가로 스크롤(이벤트) */
+.app-scroll { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+.app-scroll::-webkit-scrollbar { display: none; }
+.app-scroll > * { scroll-snap-align: start; }
+
+@keyframes appFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-8px); } }
+.app-float { animation: appFloat 6s ease-in-out infinite; }
+
+/* ── 오늘의 운세 — 카드 뒤집기 ─────────────────────────────────── */
+.flip { perspective: 1400px; }
+.flip-inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flip.is-on .flip-inner { transform: rotateY(180deg); }
+.flip-face {
+  position: absolute; inset: 0;
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  border-radius: 1.5rem; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.flip-back { transform: rotateY(180deg); }
+.card-back {
+  background:
+    radial-gradient(60% 50% at 50% 28%, rgba(255,255,255,0.22), transparent 60%),
+    linear-gradient(160deg, #6f5ecf 0%, #4b3f9e 100%);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 26px 50px -24px rgba(75, 63, 158, 0.8);
+}
+.card-front {
+  background: linear-gradient(160deg, #ffffff 0%, #f6f1ff 100%);
+  border: 1px solid var(--a-line);
+  box-shadow: 0 26px 50px -24px rgba(124, 108, 216, 0.55);
+}
+@keyframes appReveal { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.app-reveal { animation: appReveal 0.5s ease both; }
+@keyframes appPop { 0% { transform: scale(0.7); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+.app-pop { animation: appPop 0.5s cubic-bezier(0.2,0.8,0.2,1) both; }
+@keyframes appTwinkle { 0%,100% { opacity: 0.25; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.15); } }
+.app-twinkle { animation: appTwinkle 2.2s ease-in-out infinite; }
 
 /* ── 인쇄(PDF) 전용 ──────────────────────────────────────────────── */
 @media print {

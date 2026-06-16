@@ -8,6 +8,7 @@ import { SectionRenderer } from "@/components/SectionRenderer";
 import { ManualSection } from "@/components/ManualSection";
 import { buildPersonalAnalysis } from "@/lib/report/analysis";
 import { ELEMENT_LABEL } from "@/lib/ui/element";
+import ReportNav from "@/components/ReportNav";
 
 export default async function ReportPage({
   params,
@@ -25,6 +26,7 @@ export default async function ReportPage({
 
   return (
     <main className="min-h-screen pb-28">
+      <ReportNav title="운명 프로파일" />
       {/* 표지 */}
       <header className="mx-auto max-w-2xl px-8 pt-16 text-center">
         <span className="label-caps">Destiny Report</span>
@@ -79,7 +81,7 @@ export default async function ReportPage({
                 {typeof cat.score === "number" && <span className="font-display text-xs text-ivory/45">{cat.score}</span>}
               </div>
               {typeof cat.score === "number" && (
-                <div className="mt-2 h-px w-full bg-white/10">
+                <div className="mt-2 h-px w-full bg-black/10">
                   <div className="h-px bg-gold" style={{ width: `${cat.score}%` }} />
                 </div>
               )}

@@ -3,6 +3,7 @@ import { getFortune } from "@/lib/fortune/store";
 import { LifeGraph } from "@/components/LifeGraph";
 import { YearlyGraph } from "@/components/YearlyGraph";
 import { ELEMENT_COLOR, ELEMENT_HANJA } from "@/lib/ui/element";
+import ReportNav from "@/components/ReportNav";
 
 export default async function FortunePage({ params }: { params: { id: string } }) {
   const report = await getFortune(params.id);
@@ -13,6 +14,7 @@ export default async function FortunePage({ params }: { params: { id: string } }
 
   return (
     <main className="min-h-screen pb-28">
+      <ReportNav title="운세" />
       {/* 표지 */}
       <header className="mx-auto max-w-2xl px-8 pt-16 text-center">
         <span className="label-caps">Fortune Timeline · 운세</span>
@@ -67,8 +69,8 @@ export default async function FortunePage({ params }: { params: { id: string } }
               key={d.index}
               className="flex items-center gap-4 rounded-sm border px-4 py-3"
               style={{
-                borderColor: d.current ? "rgba(196,163,90,.5)" : "rgba(255,255,255,.06)",
-                background: d.current ? "rgba(196,163,90,.06)" : "transparent",
+                borderColor: d.current ? "rgba(124,108,216,.5)" : "rgba(0,0,0,.08)",
+                background: d.current ? "rgba(124,108,216,.07)" : "transparent",
               }}
             >
               <div className="w-16 shrink-0 text-center">
@@ -84,7 +86,7 @@ export default async function FortunePage({ params }: { params: { id: string } }
               </div>
               {/* 흐름 점수 막대 */}
               <div className="w-12 shrink-0">
-                <div className="h-1 w-full bg-white/10">
+                <div className="h-1 w-full bg-black/10">
                   <div className="h-1" style={{ width: `${d.score}%`, background: accent }} />
                 </div>
                 <div className="mt-1 text-right font-display text-[10px] text-ivory/40">{d.score}</div>

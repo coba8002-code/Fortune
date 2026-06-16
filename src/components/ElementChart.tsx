@@ -28,15 +28,15 @@ export function ElementChart({ profile }: { profile: ElementProfile }) {
           key={f}
           points={ELEMENTS.map((_, i) => point(i, r * f).join(",")).join(" ")}
           fill="none"
-          stroke="rgba(196,163,90,0.14)"
+          stroke="rgba(124,108,216,0.16)"
           strokeWidth={1}
         />
       ))}
       {ELEMENTS.map((_, i) => {
         const [x, y] = point(i, r);
-        return <line key={i} x1={c} y1={c} x2={x} y2={y} stroke="rgba(196,163,90,0.12)" strokeWidth={1} />;
+        return <line key={i} x1={c} y1={c} x2={x} y2={y} stroke="rgba(124,108,216,0.14)" strokeWidth={1} />;
       })}
-      <polygon points={polygon} fill="rgba(196,163,90,0.12)" stroke={GOLD} strokeWidth={1.25} />
+      <polygon points={polygon} fill="rgba(124,108,216,0.12)" stroke={GOLD} strokeWidth={1.25} />
       {ELEMENTS.map((e, i) => {
         const [dx, dy] = dataPoints[i];
         const [lx, ly] = point(i, r + 22);

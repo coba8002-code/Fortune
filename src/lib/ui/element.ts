@@ -32,9 +32,9 @@ export const RANK_COLOR: Record<CardRank, string> = {
   N: "#9A968B", // 토프
 };
 
-/** 금박 액센트 */
-export const GOLD = "#C4A35A";
-export const GOLD_SOFT = "rgba(196,163,90,0.16)";
+/** 포인트 액센트 — 묘월의 마녀 바이올렛 */
+export const GOLD = "#7C6CD8";
+export const GOLD_SOFT = "rgba(124,108,216,0.16)";
 
 /** 5단계 스킬 미터를 채움 개수로 표현(이모지 대신 세그먼트). */
 export function meterFill(stars: number): boolean[] {
